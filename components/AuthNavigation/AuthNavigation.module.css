@@ -1,0 +1,38 @@
+/* AuthNavigation.module.css */
+.navigation {
+  display: flex;
+  list-style: none;
+  gap: 1rem;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+}
+
+.navigationItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.navigationLink {
+  text-decoration: none;
+  color: #000;
+}
+
+.userEmail {
+  font-weight: bold;
+}
+
+.logoutButton {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.logoutButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
