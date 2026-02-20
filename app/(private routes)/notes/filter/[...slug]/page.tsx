@@ -1,4 +1,4 @@
-// app/notes/filter/[...slug]/page.tsx
+// app/(public routes)/notes/filter/[...slug]/page.tsx
 
 import type { Metadata } from 'next';
 import {
@@ -8,7 +8,7 @@ import {
 } from '@tanstack/react-query';
 
 import NotesClient from './Notes.client';
-import { fetchNotes } from '@/lib/api/serverApi';
+import { fetchNotes } from '@/lib/api';
 
 type Props = {
   params: Promise<{ slug?: string[] }>;
