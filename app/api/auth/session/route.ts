@@ -1,7 +1,6 @@
-//app/api/auth/session/route.ts
-
+// app/api/auth/session/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { api } from '@/lib/api/api';
+import { api } from '@/lib/api/api'; 
 
 export async function GET(req: NextRequest) {
   try {

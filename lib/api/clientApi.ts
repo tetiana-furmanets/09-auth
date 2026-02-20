@@ -1,5 +1,5 @@
-// app/lib/api/clientApi.ts
-import { api } from './api';
+// lib/api/clientApi.ts
+import { api, fetchNoteById } from './api';
 import type { Note } from '@/types/note';
 import type { User } from '@/types/user';
 
@@ -17,11 +17,6 @@ export const fetchNotes = async (
   const response = await api.get<FetchNotesResponse>('/notes', {
     params: { page, perPage, search, tag },
   });
-  return response.data;
-};
-
-export const fetchNoteById = async (id: string): Promise<Note> => {
-  const response = await api.get<Note>(`/notes/${id}`);
   return response.data;
 };
 
