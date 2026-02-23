@@ -1,7 +1,7 @@
 // app/api/auth/logout/route.ts
 
 import { NextResponse } from 'next/server';
-import { api } from '@/lib/api';
+import { api } from '@/lib/api/serverApi';
 
 export async function POST() {
   try {

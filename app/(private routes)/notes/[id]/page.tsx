@@ -9,11 +9,12 @@ import NoteDetailsClient from './NoteDetails.client';
 import type { Metadata } from 'next';
 
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const note = await fetchNoteById(params.id);
+  const { id } = await params;
+  const note = await fetchNoteById(id);
 
   if (!note) {
     return {
@@ -22,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       openGraph: {
         title: 'Note not found',
         description: 'The requested note does not exist in NoteHub.',
-        url: `https://08-zustand-1vb4-jqdoseqjj-tetiana-furmanets.vercel.app/notes/${params.id}`,
+        url: `https://08-zustand-1vb4-jqdoseqjj-tetiana-furmanets.vercel.app/notes/${id}`,
         images: [
           {
             url: 'https://ac.goit.global/fullstack/react/notehub-og-meta.jpg',
@@ -38,7 +39,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: note.title,
       description: note.content.slice(0, 150),
-      url: `https://your-vercel-url.vercel.app/notes/${params.id}`,
+      url: `https://your-vercel-url.vercel.app/notes/${id}`,
       images: [
         {
           url: 'https://ac.goit.global/fullstack/react/notehub-og-meta.jpg',
@@ -49,11 +50,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function NotePage({ params }: Props) {
+  const { id } = await params;
+
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({
-    queryKey: ['note', params.id],
-    queryFn: () => fetchNoteById(params.id), // <-- serverApi використовується
+    queryKey: ['note', id],
+    queryFn: () => fetchNoteById(id),
   });
 
   return (

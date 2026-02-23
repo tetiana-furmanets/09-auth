@@ -1,7 +1,7 @@
 //app/api/auth/register/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
-import { api } from '@/app/api/api';
+import { api } from '@/lib/api/serverApi'; 
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,7 +12,6 @@ export async function POST(req: NextRequest) {
     const res = NextResponse.json(response.data, { status: 201 });
 
     const setCookie = response.headers['set-cookie'];
-
     if (setCookie) {
       res.headers.set('set-cookie', setCookie);
     }
