@@ -1,12 +1,8 @@
-// app/notes/[id]/NoteDetails.tsx
-
-
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
-import { fetchNoteById } from '@/lib/api';
-
+import { fetchNoteById } from '@/lib/api/clientApi'; 
 const NoteDetailsClient = () => {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
@@ -17,10 +13,10 @@ const NoteDetailsClient = () => {
     error,
   } = useQuery({
     queryKey: ['note', id],
-    queryFn: () => fetchNoteById(id),
+    queryFn: () => fetchNoteById(id), // тепер clientApi
     refetchOnMount: false,
   });
-  
+
   const handleGoBack = () => {
     const isSure = confirm('Are you sure?');
     if (isSure) {
@@ -29,7 +25,6 @@ const NoteDetailsClient = () => {
   };
 
   if (isLoading) return <p>Loading...</p>;
-
   if (error || !note) return <p>Some error..</p>;
 
   const formattedDate = note.updatedAt
@@ -47,4 +42,3 @@ const NoteDetailsClient = () => {
 };
 
 export default NoteDetailsClient;
-

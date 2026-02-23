@@ -1,3 +1,4 @@
+// components/AuthNavigation/AuthNavigation.tsx
 'use client';
 
 import { useAuthStore } from '@/lib/store/authStore';
@@ -5,7 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { logout } from '@/lib/api/clientApi';
 import { useState } from 'react';
-import css from './AuthNavigation.module.css'; 
+import css from './AuthNavigation.module.css';
 
 export default function AuthNavigation() {
   const { user, isAuthenticated, clearAuth } = useAuthStore();
@@ -25,11 +26,9 @@ export default function AuthNavigation() {
     }
   };
 
-  if (!user && !isAuthenticated) return null;
-
   return (
     <ul className={css.navigation}>
-      {isAuthenticated ? (
+      {isAuthenticated && user ? (
         <>
           <li className={css.navigationItem}>
             <Link href="/profile" className={css.navigationLink}>
@@ -37,7 +36,7 @@ export default function AuthNavigation() {
             </Link>
           </li>
           <li className={css.navigationItem}>
-            <p className={css.userEmail}>{user?.email}</p>
+            <p className={css.userEmail}>{user.email}</p>
             <button
               className={css.logoutButton}
               onClick={handleLogout}

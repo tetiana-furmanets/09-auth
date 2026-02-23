@@ -1,4 +1,5 @@
 // app/lib/store/authStore.ts
+
 import { create } from 'zustand';
 import type { User } from '@/types/user';
 
@@ -9,7 +10,7 @@ interface AuthStore {
   clearAuth: () => void;
 }
 
-export const useAuthStore = create<AuthStore>((set) => ({
+export const useAuthStore = create<AuthStore>()((set) => ({
   user: null,
   isAuthenticated: false,
   setUser: (user) => set({ user, isAuthenticated: true }),

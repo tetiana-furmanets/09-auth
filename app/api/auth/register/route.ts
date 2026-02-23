@@ -1,8 +1,27 @@
-//app/api/auth/logout/route.ts
+//app/api/auth/register/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
+import { api } from '@/app/api/api';
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  return NextResponse.json({ message: 'User registered', user: body }, { status: 201 });
+  try {
+    const body = await req.json();
+
+    const response = await api.post('/auth/register', body);
+
+    const res = NextResponse.json(response.data, { status: 201 });
+
+    const setCookie = response.headers['set-cookie'];
+
+    if (setCookie) {
+      res.headers.set('set-cookie', setCookie);
+    }
+
+    return res;
+  } catch (error: any) {
+    return NextResponse.json(
+      { message: error.response?.data?.message || 'Registration failed' },
+      { status: error.response?.status || 500 }
+    );
+  }
 }

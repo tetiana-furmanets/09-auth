@@ -1,3 +1,4 @@
+// components/AuthProvider/AuthProvider.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -17,9 +18,12 @@ export default function AuthProvider({ children }: Props) {
   useEffect(() => {
     const verify = async () => {
       try {
-        const sessionUser = await checkSession();
-        if (sessionUser) {
-          setUser(sessionUser);
+        // Перевіряємо, чи сесія дійсна
+        const sessionValid = await checkSession();
+        if (sessionValid) {
+          // Отримуємо дані користувача через getMe()
+          const userData = await getMe();
+          setUser(userData);
         } else {
           clearAuth();
         }

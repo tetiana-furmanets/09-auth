@@ -1,5 +1,5 @@
 // lib/api/clientApi.ts
-import { api, fetchNoteById } from './api';
+import { api } from './api';
 import type { Note } from '@/types/note';
 import type { User } from '@/types/user';
 
@@ -62,5 +62,10 @@ export const getMe = async (): Promise<User> => {
 
 export const updateMe = async (data: { username: string }): Promise<User> => {
   const response = await api.patch<User>('/users/me', data);
+  return response.data;
+};
+
+export const fetchNoteById = async (id: string): Promise<Note> => {
+  const response = await api.get<Note>(`/notes/${id}`);
   return response.data;
 };

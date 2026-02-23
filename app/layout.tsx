@@ -1,21 +1,34 @@
 // app/layout.tsx
+
 import './globals.css';
 import { ReactNode } from 'react';
 import Header from '@/components/Header/Header';
-import Providers from '@/components/Providers/Providers';
+import Footer from '@/components/Footer/Footer';
+import { TanStackProvider } from '@/components/TanStackProvider/TanStackProvider';
+import { AuthProvider } from '@/components/AuthProvider/AuthProvider';
+
 export const metadata = {
   title: 'NoteHub',
   description: 'Your note app',
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+interface RootLayoutProps {
+  children: ReactNode;
+  modal?: ReactNode;
+}
+
+export default function RootLayout({ children, modal }: RootLayoutProps) {
   return (
     <html lang="en">
       <body>
-        <Providers>
-          <Header />
-          {children}
-        </Providers>
+        <TanStackProvider>
+          <AuthProvider>
+            <Header />
+            {children}
+            {modal}
+            <Footer />
+          </AuthProvider>
+        </TanStackProvider>
       </body>
     </html>
   );

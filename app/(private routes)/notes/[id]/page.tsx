@@ -1,11 +1,10 @@
-// app/notes/[id]/page.tsx
-
+// app/(private routes)/notes/[id]/page.tsx
 import {
   QueryClient,
   HydrationBoundary,
   dehydrate,
 } from '@tanstack/react-query';
-import { fetchNoteById } from '@/lib/api';
+import { fetchNoteById } from '@/lib/api/serverApi'; 
 import NoteDetailsClient from './NoteDetails.client';
 import type { Metadata } from 'next';
 
@@ -35,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: note.title,
-    description: note.content.slice(0, 150), // короткий опис нотатки
+    description: note.content.slice(0, 150),
     openGraph: {
       title: note.title,
       description: note.content.slice(0, 150),
@@ -54,7 +53,7 @@ export default async function NotePage({ params }: Props) {
 
   await queryClient.prefetchQuery({
     queryKey: ['note', params.id],
-    queryFn: () => fetchNoteById(params.id),
+    queryFn: () => fetchNoteById(params.id), // <-- serverApi використовується
   });
 
   return (

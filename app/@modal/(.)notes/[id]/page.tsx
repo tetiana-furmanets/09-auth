@@ -6,7 +6,7 @@ import {
   dehydrate,
 } from '@tanstack/react-query';
 
-import { fetchNoteById } from '@/lib/api/api';
+import { fetchNoteById } from '@/lib/api/serverApi'; // <-- виправлено
 import NotePreviewClient from './NotePreview.client';
 import ModalWrapper from './ModalWrapper';
 

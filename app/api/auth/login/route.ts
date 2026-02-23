@@ -1,14 +1,30 @@
 //app/api/auth/login/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
+import { api } from '@/app/api/api';
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const { email, password } = body;
+  try {
+    const body = await req.json();
 
-  if (email === 'test@test.com' && password === '123') {
-    return NextResponse.json({ message: 'Logged in' }, { status: 200 });
+    const response = await api.post('/auth/login', body);
+
+    const res = NextResponse.json(response.data, { status: 200 });
+
+    const setCookie = response.headers['set-cookie'];
+
+    if (setCookie) {
+      res.headers.set('set-cookie', setCookie);
+    }
+
+    return res;
+  } catch (error: any) {
+    return NextResponse.json(
+      {
+        message:
+          error.response?.data?.message || 'Login failed',
+      },
+      { status: error.response?.status || 500 }
+    );
   }
-
-  return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 });
 }

@@ -1,10 +1,9 @@
-// app/notes/filter/[...slug]/Notes.client.tsx
-
+// app/(private routes)/notes/filter/[...slug]/Notes.client.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import { fetchNotes } from '@/lib/api';
+import { fetchNotes } from '@/lib/api/clientApi'; // <-- виправлено
 import NoteList from '@/components/NoteList/NoteList';
 import SearchBox from '@/components/SearchBox/SearchBox';
 import { Pagination } from '@/components/Pagination/Pagination';

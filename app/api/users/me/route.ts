@@ -1,7 +1,13 @@
-//app/api/users/me/route.ts
+// app/api/users/me/route.ts
 
 import { NextResponse } from 'next/server';
+import { api } from '@/lib/api/api';
 
 export async function GET() {
-  return NextResponse.json({ id: 1, name: 'Test User', email: 'test@test.com' });
+  try {
+    const { data } = await api.get('/users/me');
+    return NextResponse.json(data);
+  } catch {
+    return NextResponse.json(null);
+  }
 }

@@ -1,4 +1,5 @@
-// app/notes/[id]/loading.tsx
+// app/(private routes)/notes/[id]/loading.tsx
+loading.tsx
 
 
 export default function NoteLoading() {

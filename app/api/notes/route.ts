@@ -1,22 +1,23 @@
 // app/api/notes/route.ts
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import { api } from '@/lib/api/api';
 
 export async function GET() {
-  return NextResponse.json([
-    { id: '1', title: 'First note', content: 'Some content' },
-    { id: '2', title: 'Second note', content: 'Another content' },
-  ]);
+  try {
+    const { data } = await api.get('/notes');
+    return NextResponse.json(data);
+  } catch {
+    return NextResponse.json([]);
+  }
 }
 
-export async function POST(req: NextRequest) {
-  const body = await req.json();
-
-  return NextResponse.json(
-    {
-      id: Date.now().toString(),
-      ...body,
-    },
-    { status: 201 }
-  );
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const { data } = await api.post('/notes', body);
+    return NextResponse.json(data);
+  } catch {
+    return NextResponse.json(null);
+  }
 }

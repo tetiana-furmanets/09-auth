@@ -1,7 +1,13 @@
-//app/api/auth/logout/route.ts
+// app/api/auth/logout/route.ts
 
 import { NextResponse } from 'next/server';
+import { api } from '@/lib/api';
 
 export async function POST() {
-  return NextResponse.json({ message: 'Logged out' }, { status: 200 });
+  try {
+    await api.post('/auth/logout');
+    return NextResponse.json(null);
+  } catch {
+    return NextResponse.json(null);
+  }
 }
