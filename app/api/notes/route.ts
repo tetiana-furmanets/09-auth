@@ -5,6 +5,8 @@ import { api } from '@/lib/api/serverApi';
 import { cookies } from 'next/headers';
 import axios from 'axios';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
@@ -14,11 +16,11 @@ export async function GET(req: NextRequest) {
     const tag = url.searchParams.get('tag') || '';
 
     const cookieStore = cookies();
-    const cookieHeader = cookieStore.get('accessToken')?.value;
+    const accessToken = cookieStore.get('accessToken')?.value;
 
     const response = await api.get('/notes', {
       params: { page, perPage, search, tag },
-      headers: cookieHeader ? { cookie: `accessToken=${cookieHeader}` } : undefined,
+      headers: accessToken ? { cookie: `accessToken=${accessToken}` } : undefined,
     });
 
     return NextResponse.json(response.data);
@@ -44,10 +46,10 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     const cookieStore = cookies();
-    const cookieHeader = cookieStore.get('accessToken')?.value;
+    const accessToken = cookieStore.get('accessToken')?.value;
 
     const response = await api.post('/notes', body, {
-      headers: cookieHeader ? { cookie: `accessToken=${cookieHeader}` } : undefined,
+      headers: accessToken ? { cookie: `accessToken=${accessToken}` } : undefined,
     });
 
     return NextResponse.json(response.data, { status: 201 });
