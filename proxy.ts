@@ -1,55 +1,72 @@
 // proxy.ts
 
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { checkSession } from './lib/api/serverApi';
 
-type RouteType = 'private' | 'auth' | 'public';
+export async function proxy(req: NextRequest) {
+  const { pathname } = req.nextUrl;
 
-export async function requireAuth(req: NextRequest, routeType: RouteType) {
-  const cookieStore = cookies();
+  const accessToken = req.cookies.get('accessToken')?.value;
+  const refreshToken = req.cookies.get('refreshToken')?.value;
 
-  const accessToken = cookieStore.get('accessToken')?.value;
-  const refreshToken = cookieStore.get('refreshToken')?.value;
+  const isAuthRoute =
+    pathname.startsWith('/sign-in') ||
+    pathname.startsWith('/sign-up');
 
-  if (routeType === 'auth' && accessToken) {
+  const isPrivateRoute =
+    pathname.startsWith('/notes') ||
+    pathname.startsWith('/profile');
+
+  if (isAuthRoute && accessToken) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
-  if (routeType === 'private' && (!accessToken || !refreshToken)) {
+  if (isPrivateRoute && !refreshToken) {
     return NextResponse.redirect(new URL('/sign-in', req.url));
   }
 
   if (accessToken) {
-    return accessToken;
+    return NextResponse.next();
   }
 
   if (refreshToken) {
     try {
-      const sessionData = await checkSession(refreshToken);
+      const session = await checkSession(refreshToken);
 
-      const res = NextResponse.next();
-      if (sessionData.accessToken) {
-        res.cookies.set('accessToken', sessionData.accessToken, {
+      const response = NextResponse.next();
+
+      if (session.accessToken) {
+        response.cookies.set('accessToken', session.accessToken, {
           httpOnly: true,
-          path: '/',
           secure: true,
-        });
-      }
-      if (sessionData.refreshToken) {
-        res.cookies.set('refreshToken', sessionData.refreshToken, {
-          httpOnly: true,
           path: '/',
-          secure: true,
         });
       }
 
-      return sessionData.accessToken;
+      if (session.refreshToken) {
+        response.cookies.set('refreshToken', session.refreshToken, {
+          httpOnly: true,
+          secure: true,
+          path: '/',
+        });
+      }
+
+      return response;
     } catch (error) {
-      console.error('Failed to refresh session', error);
+      console.error('Session refresh failed', error);
+
       return NextResponse.redirect(new URL('/sign-in', req.url));
     }
   }
 
-  return NextResponse.redirect(new URL('/sign-in', req.url));
+  return NextResponse.next();
 }
+
+export const config = {
+  matcher: [
+    '/notes/:path*',
+    '/profile/:path*',
+    '/sign-in',
+    '/sign-up',
+  ],
+};

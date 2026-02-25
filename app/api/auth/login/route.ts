@@ -1,43 +1,79 @@
-//app/api/auth/login/route.ts
+// app/api/auth/login/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
 import { api } from '@/lib/api/serverApi';
-import { isAxiosError } from 'axios';
+import { cookies } from 'next/headers';
+import axios from 'axios';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const { data, headers } = await api.post('/auth/login', body);
+    const response = await api.post('/auth/login', body);
 
-    const res = NextResponse.json(data, { status: 200 });
+    const cookieStore = cookies();
+    const setCookieHeader = response.headers['set-cookie'];
 
-    const setCookieHeader = headers['set-cookie'];
     if (setCookieHeader) {
       const cookiesArray = Array.isArray(setCookieHeader)
         ? setCookieHeader
         : [setCookieHeader];
 
-      cookiesArray.forEach((cookieStr) => {
-        const [cookiePair] = cookieStr.split(';');
-        const [name, value] = cookiePair.split('=');
-        res.cookies.set(name, value, { path: '/' });
+      cookiesArray.forEach((cookieString: string) => {
+        const parts = cookieString.split(';').map(part => part.trim());
+        const [name, value] = parts[0].split('=');
+
+        const cookieOptions: Record<string, any> = {};
+
+        parts.slice(1).forEach(part => {
+          const [key, val] = part.split('=');
+
+          switch (key.toLowerCase()) {
+            case 'path':
+              cookieOptions.path = val;
+              break;
+            case 'expires':
+              cookieOptions.expires = new Date(val);
+              break;
+            case 'max-age':
+              cookieOptions.maxAge = Number(val);
+              break;
+            case 'httponly':
+              cookieOptions.httpOnly = true;
+              break;
+            case 'secure':
+              cookieOptions.secure = true;
+              break;
+          }
+        });
+
+        cookieStore.set(name, value, cookieOptions);
       });
     }
 
-    return res;
-  } catch (error) {
-    if (isAxiosError(error)) {
-      console.error('Axios login error:', error.response?.data);
+    return NextResponse.json(response.data, {
+      status: response.status,
+    });
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      console.error('POST /auth/login failed', error.response?.data);
+
       return NextResponse.json(
-        { message: error.response?.data?.message || 'Login failed' },
-        { status: error.response?.status || 500 }
+        {
+          error: error.response?.data?.error || 'Login failed',
+        },
+        {
+          status: error.response?.status || 500,
+        }
       );
     }
 
-    console.error('Unknown login error:', error);
+    console.error('Unknown login error', error);
+
     return NextResponse.json(
-      { message: 'Login failed' },
+      {
+        error: 'Login failed',
+      },
       { status: 500 }
     );
   }

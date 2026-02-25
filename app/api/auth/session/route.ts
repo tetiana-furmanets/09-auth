@@ -2,31 +2,86 @@
 
 import { NextResponse } from 'next/server';
 import { api } from '@/lib/api/serverApi';
-import { isAxiosError } from 'axios';
+import { cookies } from 'next/headers';
+import axios from 'axios';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
-    // Отримуємо accessToken з cookie
-    const cookieStore = req.cookies;
-    const accessToken = cookieStore.get('accessToken')?.value;
+    const cookieStore = cookies();
 
-    // Викликаємо API з токеном
-    const { data } = await api.get('/auth/session', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
+    // Форвардинг ВСІХ cookies
+    const cookieHeader = Array.from(cookieStore.entries())
+      .map(([name, cookie]) => `${name}=${cookie.value}`)
+      .join('; ');
+
+    const response = await api.get('/auth/session', {
+      headers: cookieHeader ? { cookie: cookieHeader } : undefined,
     });
 
-    return NextResponse.json(data);
-  } catch (error) {
-    if (isAxiosError(error)) {
-      console.error('Axios session error:', error.response?.data);
-      return NextResponse.json(null, { status: error.response?.status || 500 });
+    // Обробка set-cookie (refresh токени тощо)
+    const setCookieHeader = response.headers['set-cookie'];
+
+    if (setCookieHeader) {
+      const cookiesArray = Array.isArray(setCookieHeader)
+        ? setCookieHeader
+        : [setCookieHeader];
+
+      cookiesArray.forEach((cookieString: string) => {
+        const parts = cookieString.split(';').map(part => part.trim());
+        const [name, value] = parts[0].split('=');
+
+        const cookieOptions: Record<string, any> = {};
+
+        parts.slice(1).forEach(part => {
+          const [key, val] = part.split('=');
+
+          switch (key.toLowerCase()) {
+            case 'path':
+              cookieOptions.path = val;
+              break;
+            case 'expires':
+              cookieOptions.expires = new Date(val);
+              break;
+            case 'max-age':
+              cookieOptions.maxAge = Number(val);
+              break;
+            case 'httponly':
+              cookieOptions.httpOnly = true;
+              break;
+            case 'secure':
+              cookieOptions.secure = true;
+              break;
+          }
+        });
+
+        cookieStore.set(name, value, cookieOptions);
+      });
     }
 
-    console.error('Unknown session error:', error);
-    return NextResponse.json(null, { status: 500 });
+    return NextResponse.json(response.data, {
+      status: response.status,
+    });
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      console.error('GET /auth/session failed', error.response?.data);
+
+      return NextResponse.json(
+        {
+          error: error.response?.data?.error || 'Session fetch failed',
+        },
+        {
+          status: error.response?.status || 500,
+        }
+      );
+    }
+
+    console.error('Unknown session error', error);
+
+    return NextResponse.json(
+      { error: 'Session fetch failed' },
+      { status: 500 }
+    );
   }
 }

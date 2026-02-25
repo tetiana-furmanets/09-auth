@@ -4,36 +4,43 @@ import { NextRequest, NextResponse } from 'next/server';
 import { api } from '@/lib/api/serverApi';
 import { cookies } from 'next/headers';
 import axios from 'axios';
+import { logErrorResponse } from '@/lib/utils/logErrorResponse';
 
-export const dynamic = 'force-dynamic'; // динамічний рендеринг
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    // Отримуємо всі cookies
     const cookieStore = cookies();
+
     const cookieHeader = Array.from(cookieStore.entries())
       .map(([name, cookie]) => `${name}=${cookie.value}`)
       .join('; ');
 
-    // Викликаємо API із форвардингом усіх cookies
-    const response = await api('/users/me', {
-      method: 'GET',
+    const response = await api.get('/users/me', {
       headers: cookieHeader ? { cookie: cookieHeader } : undefined,
     });
 
-    return NextResponse.json(response.data, { status: 200 });
+    return NextResponse.json(response.data, {
+      status: response.status,
+    });
   } catch (error: unknown) {
-    console.error('GET /users/me failed', error);
-
     if (axios.isAxiosError(error)) {
+      logErrorResponse(error, 'GET /users/me failed');
+
       return NextResponse.json(
-        { message: error.response?.data?.message || 'Failed to fetch user' },
-        { status: error.response?.status || 500 }
+        {
+          error: error.response?.data?.error || 'Failed to fetch user',
+        },
+        {
+          status: error.response?.status || 500,
+        }
       );
     }
 
+    console.error('GET /users/me failed', error);
+
     return NextResponse.json(
-      { message: 'Failed to fetch user' },
+      { error: 'Failed to fetch user' },
       { status: 500 }
     );
   }
@@ -44,29 +51,36 @@ export async function PATCH(req: NextRequest) {
     const body = await req.json();
 
     const cookieStore = cookies();
+
     const cookieHeader = Array.from(cookieStore.entries())
       .map(([name, cookie]) => `${name}=${cookie.value}`)
       .join('; ');
 
-    const response = await api('/users/me', {
-      method: 'PATCH',
+    const response = await api.patch('/users/me', body, {
       headers: cookieHeader ? { cookie: cookieHeader } : undefined,
-      data: body,
     });
 
-    return NextResponse.json(response.data, { status: 200 });
+    return NextResponse.json(response.data, {
+      status: response.status,
+    });
   } catch (error: unknown) {
-    console.error('PATCH /users/me failed', error);
-
     if (axios.isAxiosError(error)) {
+      logErrorResponse(error, 'PATCH /users/me failed');
+
       return NextResponse.json(
-        { message: error.response?.data?.message || 'Failed to update user' },
-        { status: error.response?.status || 500 }
+        {
+          error: error.response?.data?.error || 'Failed to update user',
+        },
+        {
+          status: error.response?.status || 500,
+        }
       );
     }
 
+    console.error('PATCH /users/me failed', error);
+
     return NextResponse.json(
-      { message: 'Failed to update user' },
+      { error: 'Failed to update user' },
       { status: 500 }
     );
   }
