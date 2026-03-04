@@ -1,9 +1,11 @@
-//app/api/auth/register/route.ts
+// app/api/auth/register/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
-import { api } from '@/lib/api/serverApi';
-import { cookies } from 'next/headers';
+import { api } from '@/app/api/api';
 import axios from 'axios';
+import { logErrorResponse } from '@/lib/utils/logErrorResponse';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,69 +13,45 @@ export async function POST(req: NextRequest) {
 
     const response = await api.post('/auth/register', body);
 
-    const cookieStore = cookies();
-    const setCookieHeader = response.headers['set-cookie'];
+    const res = NextResponse.json(response.data, { status: response.status });
 
-    if (setCookieHeader) {
-      const cookiesArray = Array.isArray(setCookieHeader)
-        ? setCookieHeader
-        : [setCookieHeader];
-
-      cookiesArray.forEach((cookieString: string) => {
-        const parts = cookieString.split(';').map(part => part.trim());
-        const [name, value] = parts[0].split('=');
-
-        const cookieOptions: Record<string, any> = {};
-
-        parts.slice(1).forEach(part => {
-          const [key, val] = part.split('=');
-
-          switch (key.toLowerCase()) {
-            case 'path':
-              cookieOptions.path = val;
-              break;
-            case 'expires':
-              cookieOptions.expires = new Date(val);
-              break;
-            case 'max-age':
-              cookieOptions.maxAge = Number(val);
-              break;
-            case 'httponly':
-              cookieOptions.httpOnly = true;
-              break;
-            case 'secure':
-              cookieOptions.secure = true;
-              break;
-          }
-        });
-
-        cookieStore.set(name, value, cookieOptions);
+    if (response.data?.accessToken) {
+      res.cookies.set({
+        name: 'accessToken',
+        value: response.data.accessToken,
+        path: '/',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
       });
     }
 
-    return NextResponse.json(response.data, {
-      status: response.status,
-    });
+    if (response.data?.refreshToken) {
+      res.cookies.set({
+        name: 'refreshToken',
+        value: response.data.refreshToken,
+        path: '/',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+      });
+    }
+
+    return res;
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
-      console.error('POST /auth/register failed', error.response?.data);
+      logErrorResponse(error, 'POST /auth/register failed');
 
       return NextResponse.json(
-        {
-          error: error.response?.data?.error || 'Registration failed',
-        },
-        {
-          status: error.response?.status || 500,
-        }
+        { error: error.response?.data?.error || 'Registration failed' },
+        { status: error.response?.status || 500 }
       );
     }
 
-    console.error('Unknown registration error', error);
+    console.error('POST /auth/register failed', error);
 
     return NextResponse.json(
-      {
-        error: 'Registration failed',
-      },
+      { error: 'Registration failed' },
       { status: 500 }
     );
   }

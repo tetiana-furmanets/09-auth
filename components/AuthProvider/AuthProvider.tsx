@@ -1,41 +1,40 @@
 // components/AuthProvider/AuthProvider.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, ReactNode } from 'react';
 import { useAuthStore } from '@/lib/store/authStore';
-import { checkSession, getMe, logout } from '@/lib/api/clientApi';
-import { useRouter } from 'next/navigation';
+import { getMe } from '@/lib/api/clientApi';
 
 interface Props {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export default function AuthProvider({ children }: Props) {
   const { setUser, clearAuth } = useAuthStore();
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
 
   useEffect(() => {
-    const verify = async () => {
+    const verifySession = async () => {
+      const token = localStorage.getItem('accessToken');
+
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        // Перевіряємо, чи сесія дійсна
-        const sessionValid = await checkSession();
-        if (sessionValid) {
-          // Отримуємо дані користувача через getMe()
-          const userData = await getMe();
-          setUser(userData);
-        } else {
-          clearAuth();
-        }
+        const userData = await getMe();
+        setUser(userData);
       } catch {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
         clearAuth();
-        await logout();
       } finally {
         setLoading(false);
       }
     };
 
-    verify();
+    verifySession();
   }, [setUser, clearAuth]);
 
   if (loading) return <p>Loading...</p>;

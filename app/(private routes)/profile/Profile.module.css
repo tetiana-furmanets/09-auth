@@ -9,3 +9,40 @@
   font-size: 18px;
   color: #333;
 }
+
+.profileHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.username {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.email {
+  font-size: 16px;
+  color: #666;
+}
+
+.editLink {
+  margin-top: 12px;
+  padding: 8px 16px;
+  background-color: #0070f3;
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.editLink:hover {
+  background-color: #005bb5;
+}

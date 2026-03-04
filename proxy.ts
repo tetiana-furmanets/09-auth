@@ -1,13 +1,16 @@
 // proxy.ts
 
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { checkSession } from './lib/api/serverApi';
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  const accessToken = req.cookies.get('accessToken')?.value;
-  const refreshToken = req.cookies.get('refreshToken')?.value;
+  const cookieStore = await cookies();
+
+  const accessToken = cookieStore.get('accessToken')?.value;
+  const refreshToken = cookieStore.get('refreshToken')?.value;
 
   const isAuthRoute =
     pathname.startsWith('/sign-in') ||

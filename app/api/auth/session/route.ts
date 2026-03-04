@@ -1,87 +1,60 @@
 // app/api/auth/session/route.ts
-
 import { NextResponse } from 'next/server';
-import { api } from '@/lib/api/serverApi';
 import { cookies } from 'next/headers';
+import { api } from '@/app/api/api';
 import axios from 'axios';
+import { logErrorResponse } from '@/lib/utils/logErrorResponse';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
     const cookieStore = cookies();
+    const accessToken = cookieStore.get('accessToken')?.value || null;
+    const refreshToken = cookieStore.get('refreshToken')?.value || null;
 
-    // Форвардинг ВСІХ cookies
-    const cookieHeader = Array.from(cookieStore.entries())
-      .map(([name, cookie]) => `${name}=${cookie.value}`)
-      .join('; ');
+    if (!accessToken && !refreshToken) {
+      return NextResponse.json({ success: false }, { status: 200 });
+    }
 
-    const response = await api.get('/auth/session', {
-      headers: cookieHeader ? { cookie: cookieHeader } : undefined,
-    });
+    const headers: Record<string, string> = {};
+    if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
+    if (refreshToken) headers['x-refresh-token'] = refreshToken; // якщо сервер потребує окремо refreshToken
 
-    // Обробка set-cookie (refresh токени тощо)
-    const setCookieHeader = response.headers['set-cookie'];
+    const response = await api.get('/auth/session', { headers });
 
-    if (setCookieHeader) {
-      const cookiesArray = Array.isArray(setCookieHeader)
-        ? setCookieHeader
-        : [setCookieHeader];
+    const res = NextResponse.json({ success: true }, { status: 200 });
 
-      cookiesArray.forEach((cookieString: string) => {
-        const parts = cookieString.split(';').map(part => part.trim());
-        const [name, value] = parts[0].split('=');
-
-        const cookieOptions: Record<string, any> = {};
-
-        parts.slice(1).forEach(part => {
-          const [key, val] = part.split('=');
-
-          switch (key.toLowerCase()) {
-            case 'path':
-              cookieOptions.path = val;
-              break;
-            case 'expires':
-              cookieOptions.expires = new Date(val);
-              break;
-            case 'max-age':
-              cookieOptions.maxAge = Number(val);
-              break;
-            case 'httponly':
-              cookieOptions.httpOnly = true;
-              break;
-            case 'secure':
-              cookieOptions.secure = true;
-              break;
-          }
-        });
-
-        cookieStore.set(name, value, cookieOptions);
+    if (response.data?.accessToken) {
+      res.cookies.set({
+        name: 'accessToken',
+        value: response.data.accessToken,
+        path: '/',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
       });
     }
 
-    return NextResponse.json(response.data, {
-      status: response.status,
-    });
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-      console.error('GET /auth/session failed', error.response?.data);
-
-      return NextResponse.json(
-        {
-          error: error.response?.data?.error || 'Session fetch failed',
-        },
-        {
-          status: error.response?.status || 500,
-        }
-      );
+    if (response.data?.refreshToken) {
+      res.cookies.set({
+        name: 'refreshToken',
+        value: response.data.refreshToken,
+        path: '/',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+      });
     }
 
-    console.error('Unknown session error', error);
+    return res;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      logErrorResponse(error, 'GET /auth/session failed');
+    } else {
+      console.error('GET /auth/session failed', error);
+    }
 
-    return NextResponse.json(
-      { error: 'Session fetch failed' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false }, { status: 200 });
   }
 }

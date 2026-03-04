@@ -1,11 +1,17 @@
 // lib/api/clientApi.ts
-import { api } from './api';
+
+import { api } from '@/app/api/api';
 import type { Note } from '@/types/note';
 import type { User } from '@/types/user';
 
 export interface FetchNotesResponse {
   notes: Note[];
   totalPages: number;
+}
+
+export interface AuthResponse {
+  accessToken: string;
+  refreshToken: string;
 }
 
 export const fetchNotes = async (
@@ -32,18 +38,34 @@ export const deleteNote = async (id: string): Promise<Note> => {
   return response.data;
 };
 
-export const register = async (credentials: { email: string; password: string }): Promise<User> => {
+export const register = async (
+  credentials: { email: string; password: string }
+): Promise<User> => {
   const response = await api.post<User>('/auth/register', credentials);
   return response.data;
 };
 
-export const login = async (credentials: { email: string; password: string }): Promise<User> => {
-  const response = await api.post<User>('/auth/login', credentials);
+export const login = async (
+  credentials: { email: string; password: string }
+): Promise<AuthResponse> => {
+  const response = await api.post<AuthResponse>(
+    '/auth/login',
+    credentials
+  );
+
+  const { accessToken, refreshToken } = response.data;
+
+  localStorage.setItem('accessToken', accessToken);
+  localStorage.setItem('refreshToken', refreshToken);
+
   return response.data;
 };
 
 export const logout = async (): Promise<void> => {
   await api.post('/auth/logout');
+
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
 };
 
 export const checkSession = async (): Promise<User | null> => {
@@ -60,7 +82,9 @@ export const getMe = async (): Promise<User> => {
   return response.data;
 };
 
-export const updateMe = async (data: { username: string }): Promise<User> => {
+export const updateMe = async (
+  data: { username: string }
+): Promise<User> => {
   const response = await api.patch<User>('/users/me', data);
   return response.data;
 };
