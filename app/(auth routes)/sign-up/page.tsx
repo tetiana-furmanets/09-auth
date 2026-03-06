@@ -22,7 +22,6 @@ export default function SignUpPage() {
     try {
       await register({ email, password });
 
-      // ✅ Переходимо на login
       router.push('/sign-in');
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Registration failed');

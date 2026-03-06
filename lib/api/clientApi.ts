@@ -1,6 +1,6 @@
 // lib/api/clientApi.ts
 
-import { api } from '@/app/api/api';
+import { api } from '@/lib/api/api';
 import type { Note } from '@/types/note';
 import type { User } from '@/types/user';
 
@@ -45,27 +45,25 @@ export const register = async (
   return response.data;
 };
 
-export const login = async (
-  credentials: { email: string; password: string }
-): Promise<AuthResponse> => {
-  const response = await api.post<AuthResponse>(
-    '/auth/login',
-    credentials
-  );
+export const login = async (credentials: { email: string; password: string }) => {
+  const response = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(credentials),
+  });
 
-  const { accessToken, refreshToken } = response.data;
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.error || 'Login failed');
+  }
 
-  localStorage.setItem('accessToken', accessToken);
-  localStorage.setItem('refreshToken', refreshToken);
+  const data = await response.json();
 
-  return response.data;
+  return data.user;
 };
 
 export const logout = async (): Promise<void> => {
   await api.post('/auth/logout');
-
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('refreshToken');
 };
 
 export const checkSession = async (): Promise<User | null> => {

@@ -1,50 +1,60 @@
 // app/lib/api/serverApi.ts
+import axios from 'axios';
 import { cookies } from 'next/headers';
-import { api } from '@/app/api/api';
 import type { Note } from '@/types/note';
 import type { User } from '@/types/user';
 
-export interface FetchNotesResponse {
-  notes: Note[];
-  totalPages: number;
-}
+const baseURL = process.env.NEXT_PUBLIC_API_URL + '/api';
 
-async function getAuthCookieHeader() {
-  const cookieStore = await cookies(); // <-- await
+const serverApi = axios.create({
+  baseURL,
+});
+
+export const fetchNotes = async (): Promise<Note[]> => {
+  const cookieStore = await cookies();
+
   const accessToken = cookieStore.get('accessToken')?.value;
-  const refreshToken = cookieStore.get('refreshToken')?.value;
 
-  if (!accessToken && !refreshToken) return undefined;
+  const response = await serverApi.get('/notes', {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
 
-  return [
-    accessToken ? `accessToken=${accessToken}` : null,
-    refreshToken ? `refreshToken=${refreshToken}` : null,
-  ]
-    .filter(Boolean)
-    .join('; ');
-}
+  return response.data.notes;
+};
 
-export const getMe = async (cookieHeader?: string): Promise<User> => {
-  const header = cookieHeader || (await getAuthCookieHeader());
+export const fetchNoteById = async (id: string): Promise<Note> => {
+  const cookieStore = await cookies();
 
-  const response = await api.get<User>('/users/me', {
-    headers: header ? { cookie: header } : undefined,
+  const accessToken = cookieStore.get('accessToken')?.value;
+
+  const response = await serverApi.get(`/notes/${id}`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
   });
 
   return response.data;
 };
 
-export const fetchNotes = async (
-  page = 1,
-  perPage = 12,
-  search = '',
-  tag?: string
-): Promise<FetchNotesResponse> => {
-  const header = await getAuthCookieHeader();
+export const getMe = async (): Promise<User> => {
+  const cookieStore = await cookies();
 
-  const response = await api.get<FetchNotesResponse>('/notes', {
-    params: { page, perPage, search, tag },
-    headers: header ? { cookie: header } : undefined,
+  const accessToken = cookieStore.get('accessToken')?.value;
+
+  const response = await serverApi.get('/users/me', {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  return response.data;
+};
+
+export const checkSession = async (refreshToken: string) => {
+  const response = await serverApi.post('/auth/refresh', {
+    refreshToken,
   });
 
   return response.data;

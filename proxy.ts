@@ -1,16 +1,13 @@
 // proxy.ts
 
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { checkSession } from './lib/api/serverApi';
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  const cookieStore = await cookies();
-
-  const accessToken = cookieStore.get('accessToken')?.value;
-  const refreshToken = cookieStore.get('refreshToken')?.value;
+  const accessToken = req.cookies.get('accessToken')?.value;
+  const refreshToken = req.cookies.get('refreshToken')?.value;
 
   const isAuthRoute =
     pathname.startsWith('/sign-in') ||
@@ -21,7 +18,7 @@ export async function proxy(req: NextRequest) {
     pathname.startsWith('/profile');
 
   if (isAuthRoute && accessToken) {
-    return NextResponse.redirect(new URL('/', req.url));
+    return NextResponse.redirect(new URL('/profile', req.url));
   }
 
   if (isPrivateRoute && !refreshToken) {
@@ -55,9 +52,7 @@ export async function proxy(req: NextRequest) {
       }
 
       return response;
-    } catch (error) {
-      console.error('Session refresh failed', error);
-
+    } catch {
       return NextResponse.redirect(new URL('/sign-in', req.url));
     }
   }

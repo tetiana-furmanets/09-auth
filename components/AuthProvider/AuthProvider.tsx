@@ -3,7 +3,7 @@
 
 import { useEffect, useState, ReactNode } from 'react';
 import { useAuthStore } from '@/lib/store/authStore';
-import { getMe } from '@/lib/api/clientApi';
+import { checkSession } from '@/lib/api/clientApi';
 
 interface Props {
   children: ReactNode;
@@ -15,19 +15,15 @@ export default function AuthProvider({ children }: Props) {
 
   useEffect(() => {
     const verifySession = async () => {
-      const token = localStorage.getItem('accessToken');
-
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-
       try {
-        const userData = await getMe();
-        setUser(userData);
+        const user = await checkSession();
+
+        if (user) {
+          setUser(user);
+        } else {
+          clearAuth();
+        }
       } catch {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
         clearAuth();
       } finally {
         setLoading(false);
@@ -37,7 +33,9 @@ export default function AuthProvider({ children }: Props) {
     verifySession();
   }, [setUser, clearAuth]);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) {
+    return <p>Loading...</p>;
+  }
 
   return <>{children}</>;
 }

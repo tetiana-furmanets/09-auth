@@ -1,75 +1,67 @@
 // app/api/notes/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { api } from '@/app/api/api';
+import { api } from '../api';
 import { cookies } from 'next/headers';
-import axios from 'axios';
-import { logErrorResponse } from '@/lib/utils/logErrorResponse';
+import { isAxiosError } from 'axios';
+import { logErrorResponse } from '../_utils/utils';
 
-export const dynamic = 'force-dynamic';
-
-async function getAuthCookieHeader() {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get('accessToken')?.value;
-  const refreshToken = cookieStore.get('refreshToken')?.value;
-
-  return [
-    accessToken ? `accessToken=${accessToken}` : null,
-    refreshToken ? `refreshToken=${refreshToken}` : null,
-  ]
-    .filter(Boolean)
-    .join('; ');
-}
-
-export async function GET(req: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
+    const cookieStore = await cookies();
+    const search = request.nextUrl.searchParams.get('search') ?? '';
+    const page = Number(request.nextUrl.searchParams.get('page') ?? 1);
+    const rawTag = request.nextUrl.searchParams.get('tag') ?? '';
+    const tag = rawTag === 'All' ? '' : rawTag;
 
-    const page = searchParams.get('page') || '1';
-    const search = searchParams.get('search') || '';
-    const tag = searchParams.get('tag') || '';
-
-    const params: Record<string, string> = { page, perPage: '12' };
-
-    if (search) params.search = search;
-    if (tag && tag.toLowerCase() !== 'all') params.tag = tag;
-
-    const cookieHeader = await getAuthCookieHeader();
-
-    const response = await api.get('/notes', {
-      params,
-      headers: cookieHeader ? { cookie: cookieHeader } : undefined,
+    const res = await api('/notes', {
+      params: {
+        ...(search !== '' && { search }),
+        page,
+        perPage: 12,
+        ...(tag && { tag }),
+      },
+      headers: {
+        Cookie: cookieStore.toString(),
+      },
     });
 
-    return NextResponse.json(response.data, { status: response.status });
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error)) logErrorResponse(error, 'GET /notes failed');
-    else console.error('GET /notes failed', error);
-
-    return NextResponse.json(
-      { error: 'Failed to fetch notes' },
-      { status: axios.isAxiosError(error) ? error.response?.status || 500 : 500 }
-    );
+    return NextResponse.json(res.data, { status: res.status });
+  } catch (error) {
+    if (isAxiosError(error)) {
+      logErrorResponse(error.response?.data);
+      return NextResponse.json(
+        { error: error.message, response: error.response?.data },
+        { status: error.status }
+      );
+    }
+    logErrorResponse({ message: (error as Error).message });
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await req.json();
+    const cookieStore = await cookies();
 
-    const cookieHeader = await getAuthCookieHeader();
+    const body = await request.json();
 
-    const response = await api.post('/notes', body, {
-      headers: cookieHeader ? { cookie: cookieHeader } : undefined,
+    const res = await api.post('/notes', body, {
+      headers: {
+        Cookie: cookieStore.toString(),
+        'Content-Type': 'application/json',
+      },
     });
 
-    return NextResponse.json(response.data, { status: response.status });
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error)) logErrorResponse(error, 'POST /notes failed');
-    else console.error('POST /notes failed', error);
-
-    return NextResponse.json(
-      { error: 'Failed to create note' },
-      { status: axios.isAxiosError(error) ? error.response?.status || 500 : 500 }
-    );
+    return NextResponse.json(res.data, { status: res.status });
+  } catch (error) {
+    if (isAxiosError(error)) {
+      logErrorResponse(error.response?.data);
+      return NextResponse.json(
+        { error: error.message, response: error.response?.data },
+        { status: error.status }
+      );
+    }
+    logErrorResponse({ message: (error as Error).message });
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
