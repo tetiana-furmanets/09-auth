@@ -9,11 +9,6 @@ export interface FetchNotesResponse {
   totalPages: number;
 }
 
-export interface AuthResponse {
-  accessToken: string;
-  refreshToken: string;
-}
-
 export const fetchNotes = async (
   page = 1,
   perPage = 12,
@@ -26,9 +21,7 @@ export const fetchNotes = async (
   return response.data;
 };
 
-export const createNote = async (
-  note: { title: string; content: string; tag: Note['tag'] }
-): Promise<Note> => {
+export const createNote = async (note: { title: string; content: string; tag: Note['tag'] }): Promise<Note> => {
   const response = await api.post<Note>('/notes', note);
   return response.data;
 };
@@ -38,28 +31,15 @@ export const deleteNote = async (id: string): Promise<Note> => {
   return response.data;
 };
 
-export const register = async (
-  credentials: { email: string; password: string }
-): Promise<User> => {
+export const register = async (credentials: { email: string; password: string }): Promise<User> => {
   const response = await api.post<User>('/auth/register', credentials);
   return response.data;
 };
 
-export const login = async (credentials: { email: string; password: string }) => {
-  const response = await fetch('/api/auth/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(credentials),
-  });
-
-  if (!response.ok) {
-    const data = await response.json();
-    throw new Error(data.error || 'Login failed');
-  }
-
-  const data = await response.json();
-
-  return data.user;
+export const login = async (credentials: { email: string; password: string }): Promise<User> => {
+  // використання інстансу axios
+  const response = await api.post<User>('/auth/login', credentials);
+  return response.data;
 };
 
 export const logout = async (): Promise<void> => {
@@ -80,9 +60,7 @@ export const getMe = async (): Promise<User> => {
   return response.data;
 };
 
-export const updateMe = async (
-  data: { username: string }
-): Promise<User> => {
+export const updateMe = async (data: { username: string }): Promise<User> => {
   const response = await api.patch<User>('/users/me', data);
   return response.data;
 };

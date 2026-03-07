@@ -1,11 +1,12 @@
 // app/(private routes)/profile/page.tsx
 
-import { cookies } from 'next/headers';
 import { getMe } from '@/lib/api/serverApi';
-import type { User } from '@/types/user';
+import { redirect } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
 import css from './Profile.module.css';
 import { Metadata } from 'next';
-import { redirect } from 'next/navigation';
+import type { User } from '@/types/user';
 
 export const metadata: Metadata = {
   title: 'Profile - NoteHub',
@@ -13,21 +14,40 @@ export const metadata: Metadata = {
 };
 
 export default async function ProfilePage() {
-  const cookieStore = cookies();
-  const cookieHeader = cookieStore.getAll().map(c => `${c.name}=${c.value}`).join('; ');
-
   let user: User;
 
   try {
-    user = await getMe(cookieHeader);
-  } catch (error: any) {
-    redirect('/sign-in'); 
+    user = await getMe();
+  } catch {
+    redirect('/sign-in');
   }
 
   return (
-    <div className={css.container}>
-      <h1>{user.username}</h1>
-      <p>{user.email}</p>
-    </div>
+    <main className={css.mainContent}>
+      <div className={css.profileCard}>
+        <div className={css.header}>
+          <h1 className={css.formTitle}>Profile Page</h1>
+
+          <Link href="/profile/edit" className={css.editProfileButton}>
+            Edit Profile
+          </Link>
+        </div>
+
+        <div className={css.avatarWrapper}>
+          <Image
+            src={user.avatar}
+            alt="User Avatar"
+            width={120}
+            height={120}
+            className={css.avatar}
+          />
+        </div>
+
+        <div className={css.profileInfo}>
+          <p>Username: {user.username}</p>
+          <p>Email: {user.email}</p>
+        </div>
+      </div>
+    </main>
   );
 }

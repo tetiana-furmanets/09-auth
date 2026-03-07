@@ -33,9 +33,13 @@ export default function AuthProvider({ children }: Props) {
     verifySession();
   }, [setUser, clearAuth]);
 
-  if (loading) {
-    return <p>Loading...</p>;
-  }
+ if (loading) {
+  return (
+    <div>
+      <p>Loading...</p>
+    </div>
+  );
+}
 
   return <>{children}</>;
 }

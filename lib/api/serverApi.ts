@@ -1,61 +1,40 @@
 // app/lib/api/serverApi.ts
-import axios from 'axios';
+
+
+import { api } from '@/lib/api/api';
 import { cookies } from 'next/headers';
 import type { Note } from '@/types/note';
 import type { User } from '@/types/user';
 
-const baseURL = process.env.NEXT_PUBLIC_API_URL + '/api';
-
-const serverApi = axios.create({
-  baseURL,
-});
+async function getCookieHeader() {
+  const cookieStore = cookies();
+  return cookieStore.getAll().map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
+}
 
 export const fetchNotes = async (): Promise<Note[]> => {
-  const cookieStore = await cookies();
-
-  const accessToken = cookieStore.get('accessToken')?.value;
-
-  const response = await serverApi.get('/notes', {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-
+  const cookieHeader = await getCookieHeader();
+  const response = await api.get('/notes', { headers: { Cookie: cookieHeader } });
   return response.data.notes;
 };
 
 export const fetchNoteById = async (id: string): Promise<Note> => {
-  const cookieStore = await cookies();
-
-  const accessToken = cookieStore.get('accessToken')?.value;
-
-  const response = await serverApi.get(`/notes/${id}`, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-
+  const cookieHeader = await getCookieHeader();
+  const response = await api.get(`/notes/${id}`, { headers: { Cookie: cookieHeader } });
   return response.data;
 };
 
 export const getMe = async (): Promise<User> => {
-  const cookieStore = await cookies();
-
-  const accessToken = cookieStore.get('accessToken')?.value;
-
-  const response = await serverApi.get('/users/me', {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-
+  const cookieHeader = await getCookieHeader();
+  const response = await api.get('/users/me', { headers: { Cookie: cookieHeader } });
   return response.data;
 };
 
-export const checkSession = async (refreshToken: string) => {
-  const response = await serverApi.post('/auth/refresh', {
-    refreshToken,
-  });
-
-  return response.data;
+export const checkSession = async (): Promise<User | null> => {
+  const cookieHeader = await getCookieHeader();
+  try {
+    const response = await api.get('/auth/session', { headers: { Cookie: cookieHeader } });
+    return response.data || null;
+  } catch {
+    return null;
+  }
 };

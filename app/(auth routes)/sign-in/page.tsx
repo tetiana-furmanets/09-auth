@@ -27,9 +27,10 @@ export default function SignInPage() {
       await login({ email, password });
 
       const user = await getMe();
+
       setUser(user);
 
-      router.push('/notes');
+      router.push('/profile');
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Login failed');
     } finally {
@@ -41,20 +42,20 @@ export default function SignInPage() {
     <div className={css.container}>
       <form onSubmit={handleSubmit} className={css.form}>
         <input
-          className={css.input}
+          name="email"
           type="email"
-          placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          className={css.input}
           required
         />
 
         <input
-          className={css.input}
+          name="password"
           type="password"
-          placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          className={css.input}
           required
         />
 

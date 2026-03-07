@@ -1,13 +1,17 @@
 // app/(auth routes)/sign-up/page.tsx
 'use client';
 
+'use client';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { register } from '@/lib/api/clientApi';
+import { useAuthStore } from '@/lib/store/authStore';
 import css from './SignUp.module.css';
 
 export default function SignUpPage() {
   const router = useRouter();
+  const { setUser } = useAuthStore();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,9 +24,11 @@ export default function SignUpPage() {
     setError(null);
 
     try {
-      await register({ email, password });
+      const user = await register({ email, password });
 
-      router.push('/sign-in');
+      setUser(user);
+
+      router.push('/profile');
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Registration failed');
     } finally {
@@ -34,20 +40,20 @@ export default function SignUpPage() {
     <div className={css.container}>
       <form onSubmit={handleSubmit} className={css.form}>
         <input
-          className={css.input}
+          name="email"
           type="email"
-          placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          className={css.input}
           required
         />
 
         <input
-          className={css.input}
+          name="password"
           type="password"
-          placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          className={css.input}
           required
         />
 
