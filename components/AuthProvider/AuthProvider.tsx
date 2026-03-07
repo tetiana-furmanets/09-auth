@@ -3,7 +3,7 @@
 
 import { useEffect, useState, ReactNode } from 'react';
 import { useAuthStore } from '@/lib/store/authStore';
-import { checkSession } from '@/lib/api/clientApi';
+import { checkSession, getMe } from '@/lib/api/clientApi';
 
 interface Props {
   children: ReactNode;
@@ -16,10 +16,10 @@ export default function AuthProvider({ children }: Props) {
   useEffect(() => {
     const verifySession = async () => {
       try {
-        const user = await checkSession();
+        const sessionValid = await checkSession(); 
 
-        if (user) {
-          setUser(user);
+        if (sessionValid) {
+          const user = await getMe(); 
         } else {
           clearAuth();
         }
@@ -33,13 +33,13 @@ export default function AuthProvider({ children }: Props) {
     verifySession();
   }, [setUser, clearAuth]);
 
- if (loading) {
-  return (
-    <div>
-      <p>Loading...</p>
-    </div>
-  );
-}
+  if (loading) {
+    return (
+      <div>
+        <p>Loading...</p>
+      </div>
+    );
+  }
 
   return <>{children}</>;
 }

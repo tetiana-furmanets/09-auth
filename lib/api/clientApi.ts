@@ -37,7 +37,6 @@ export const register = async (credentials: { email: string; password: string })
 };
 
 export const login = async (credentials: { email: string; password: string }): Promise<User> => {
-  // використання інстансу axios
   const response = await api.post<User>('/auth/login', credentials);
   return response.data;
 };

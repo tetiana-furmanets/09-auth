@@ -1,11 +1,10 @@
 // app/(auth routes)/sign-in/page.tsx
 
-
 'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { login, getMe } from '@/lib/api/clientApi';
+import { login } from '@/lib/api/clientApi';
 import { useAuthStore } from '@/lib/store/authStore';
 import css from './SignIn.module.css';
 
@@ -24,13 +23,9 @@ export default function SignInPage() {
     setError(null);
 
     try {
-      await login({ email, password });
-
-      const user = await getMe();
-
-      setUser(user);
-
-      router.push('/profile');
+      const user = await login({ email, password }); 
+      setUser(user); 
+      router.push('/profile'); 
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Login failed');
     } finally {
@@ -49,7 +44,6 @@ export default function SignInPage() {
           className={css.input}
           required
         />
-
         <input
           name="password"
           type="password"
@@ -58,9 +52,7 @@ export default function SignInPage() {
           className={css.input}
           required
         />
-
         {error && <p className={css.error}>{error}</p>}
-
         <button className={css.button} type="submit" disabled={loading}>
           {loading ? 'Signing In...' : 'Sign In'}
         </button>
