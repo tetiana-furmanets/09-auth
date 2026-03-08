@@ -6,8 +6,7 @@ import {
   dehydrate,
 } from '@tanstack/react-query';
 
-import { fetchNoteById } from '@/lib/api/serverApi'; // <-- виправлено
-import NotePreviewClient from './NotePreview.client';
+import { serverFetchNoteById } from '@/lib/api/serverApi';import NotePreviewClient from './NotePreview.client';
 import ModalWrapper from './ModalWrapper';
 
 type Props = {
@@ -21,7 +20,7 @@ export default async function Page({ params }: Props) {
 
   await queryClient.prefetchQuery({
     queryKey: ['note', id],
-    queryFn: () => fetchNoteById(id),
+    queryFn: () => serverFetchNoteById(id),
   });
 
   return (

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createNote } from '@/lib/api/clientApi';
 import { useNoteStore } from '@/lib/store/noteStore';
@@ -17,24 +17,11 @@ export default function NoteForm({ onClose }: NoteFormProps) {
   const queryClient = useQueryClient();
   const { draft, setDraft, clearDraft } = useNoteStore();
 
-  const [form, setForm] = useState<{
-  title: string;
-  content: string;
-  tag: NoteTag;
-}>({
-  title: draft.title,
-  content: draft.content,
-  tag: draft.tag,
-});
-
-
-  useEffect(() => {
-    setForm({
-      title: draft.title,
-      content: draft.content,
-      tag: draft.tag,
-    });
-  }, [draft]);
+  const [form, setForm] = useState({
+    title: draft.title,
+    content: draft.content,
+    tag: draft.tag,
+  });
 
   const mutation = useMutation({
     mutationFn: createNote,
@@ -45,23 +32,23 @@ export default function NoteForm({ onClose }: NoteFormProps) {
     },
   });
 
- const handleChange = (
-  e: React.ChangeEvent<
-    HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-  >
-) => {
-  const { name, value } = e.target;
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
 
-  const updatedForm = {
-    ...form,
-    [name]: name === 'tag' ? (value as NoteTag) : value,
+    const updatedForm = {
+      ...form,
+      [name]: name === 'tag' ? (value as NoteTag) : value,
+    };
+
+    setForm(updatedForm);
+    setDraft(updatedForm);
   };
 
-  setForm(updatedForm);
-  setDraft(updatedForm);
-};
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     mutation.mutate(form);
   };
@@ -105,6 +92,7 @@ export default function NoteForm({ onClose }: NoteFormProps) {
         <button type="button" onClick={onClose}>
           Cancel
         </button>
+
         <button type="submit" disabled={mutation.isPending}>
           Create Note
         </button>

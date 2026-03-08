@@ -11,5 +11,10 @@ export interface Note {
   content: string;
   tag: NoteTag;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
+}
+
+export interface FetchNotesResponse {
+  notes: Note[];
+  totalPages: number;
 }

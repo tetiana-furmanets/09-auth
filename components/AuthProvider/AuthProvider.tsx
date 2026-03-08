@@ -16,10 +16,11 @@ export default function AuthProvider({ children }: Props) {
   useEffect(() => {
     const verifySession = async () => {
       try {
-        const sessionValid = await checkSession(); 
+        const sessionValid = await checkSession();
 
         if (sessionValid) {
-          const user = await getMe(); 
+          const user = await getMe();
+          setUser(user);
         } else {
           clearAuth();
         }
@@ -34,11 +35,7 @@ export default function AuthProvider({ children }: Props) {
   }, [setUser, clearAuth]);
 
   if (loading) {
-    return (
-      <div>
-        <p>Loading...</p>
-      </div>
-    );
+    return <p>Loading...</p>;
   }
 
   return <>{children}</>;

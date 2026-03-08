@@ -1,7 +1,7 @@
 // proxy.ts
 
 import { NextRequest, NextResponse } from 'next/server';
-import { checkSession } from './lib/api/serverApi';
+import { serverCheckSession } from './lib/api/serverApi';
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -31,26 +31,26 @@ export async function proxy(req: NextRequest) {
 
   if (refreshToken) {
     try {
-      const session = await checkSession(refreshToken);
+      const session = await serverCheckSession();
+const { accessToken: newAccessToken, refreshToken: newRefreshToken } = session.data;
 
-      const response = NextResponse.next();
+const response = NextResponse.next();
 
-      if (session.accessToken) {
-        response.cookies.set('accessToken', session.accessToken, {
-          httpOnly: true,
-          secure: true,
-          path: '/',
-        });
-      }
+if (newAccessToken) {
+  response.cookies.set('accessToken', newAccessToken, {
+    httpOnly: true,
+    secure: true,
+    path: '/',
+  });
+}
 
-      if (session.refreshToken) {
-        response.cookies.set('refreshToken', session.refreshToken, {
-          httpOnly: true,
-          secure: true,
-          path: '/',
-        });
-      }
-
+if (newRefreshToken) {
+  response.cookies.set('refreshToken', newRefreshToken, {
+    httpOnly: true,
+    secure: true,
+    path: '/',
+  });
+}
       return response;
     } catch {
       return NextResponse.redirect(new URL('/sign-in', req.url));

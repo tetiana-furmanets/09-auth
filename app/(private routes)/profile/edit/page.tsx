@@ -4,10 +4,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { requireAuth } from '@/lib/proxy';
 import { getMe, updateMe } from '@/lib/api/clientApi';
 import { useAuthStore } from '@/lib/store/authStore';
-import css from './EditProfile.module.css';
+import css from './EditProfilePage.module.css';
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -21,7 +20,6 @@ export default function EditProfilePage() {
 
   useEffect(() => {
     const fetchUser = async () => {
-      await requireAuth(); // перевірка автентифікації
       if (!user) {
         const me = await getMe();
         setUser(me);
@@ -30,6 +28,7 @@ export default function EditProfilePage() {
         setAvatar(me.avatar);
       }
     };
+
     fetchUser();
   }, [user, setUser]);
 
@@ -40,10 +39,14 @@ export default function EditProfilePage() {
 
     try {
       const updatedUser = await updateMe({ username });
-      setUser(updatedUser); // оновлення глобального стану
+      setUser(updatedUser);
       router.push('/profile');
-    } catch (err: any) {
-      setError(err?.message || 'Update failed');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Update failed');
+      }
     } finally {
       setLoading(false);
     }
@@ -52,6 +55,7 @@ export default function EditProfilePage() {
   return (
     <div className={css.container}>
       <h1>Edit Profile</h1>
+
       {avatar && (
         <Image
           src={avatar}
@@ -61,6 +65,7 @@ export default function EditProfilePage() {
           className={css.avatar}
         />
       )}
+
       <form onSubmit={handleSubmit} className={css.form}>
         <label>
           Username:
@@ -72,16 +77,25 @@ export default function EditProfilePage() {
             required
           />
         </label>
+
         <label>
           Email:
           <input type="email" value={email} readOnly />
         </label>
+
         {error && <p className={css.error}>{error}</p>}
+
         <div className={css.buttons}>
-          <button type="submit" disabled={loading}>
+          <button className={css.button} type="submit" disabled={loading}>
             {loading ? 'Saving...' : 'Save'}
           </button>
-          <button type="button" onClick={() => router.back()} disabled={loading}>
+
+          <button
+            className={css.button}
+            type="button"
+            onClick={() => router.back()}
+            disabled={loading}
+          >
             Cancel
           </button>
         </div>

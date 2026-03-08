@@ -1,7 +1,6 @@
 // app/(private routes)/profile/page.tsx
 
-import { getMe } from '@/lib/api/serverApi';
-import { redirect } from 'next/navigation';
+import { serverGetMe } from '@/lib/api/serverApi';import { redirect } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import css from './Profile.module.css';
@@ -17,7 +16,7 @@ export default async function ProfilePage() {
   let user: User;
 
   try {
-    user = await getMe();
+    user = await serverGetMe();
   } catch {
     redirect('/sign-in');
   }

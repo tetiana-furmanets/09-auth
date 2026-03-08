@@ -1,26 +1,24 @@
 // app/(private routes)/notes/filter/[...slug]/Notes.client.tsx
+
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import { fetchNotes } from '@/lib/api/clientApi'; 
+import { useQuery } from '@tanstack/react-query';
+import { fetchNotes } from '@/lib/api/clientApi';
 import NoteList from '@/components/NoteList/NoteList';
 import SearchBox from '@/components/SearchBox/SearchBox';
 import { Pagination } from '@/components/Pagination/Pagination';
 import Link from 'next/link';
+import type { FetchNotesResponse } from '@/types/note';
 
 type Props = {
   tag?: string;
 };
 
 export default function NotesClient({ tag }: Props) {
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
-  const [debounced, setDebounced] = useState('');
-
-  useEffect(() => {
-    setPage(1);
-  }, [search]);
+  const [page, setPage] = useState<number>(1);
+  const [search, setSearch] = useState<string>('');
+  const [debounced, setDebounced] = useState<string>('');
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -30,18 +28,23 @@ export default function NotesClient({ tag }: Props) {
     return () => clearTimeout(timer);
   }, [search]);
 
-  const { data, isLoading, isError } = useQuery({
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1); 
+  };
+
+  const { data, isLoading, isError } = useQuery<FetchNotesResponse, Error>({
     queryKey: ['notes', page, debounced, tag],
     queryFn: () => fetchNotes(page, 12, debounced, tag),
-    placeholderData: keepPreviousData,
+    placeholderData: (previousData) => previousData,
   });
 
   if (isLoading) return <p>Loading...</p>;
-  if (isError || !data) return <p>Error</p>;
+  if (isError || !data) return <p>Error loading notes</p>;
 
   return (
     <>
-      <SearchBox value={search} onChange={setSearch} />
+      <SearchBox value={search} onChange={handleSearchChange} />
 
       <Link href="/notes/action/create">
         <button>Create note +</button>
