@@ -1,5 +1,5 @@
 // lib/api/serverApi.ts
-import { nextServer as api } from '@/lib/api/api';
+import { nextServer } from '@/lib/api/api';
 import { cookies } from 'next/headers';
 import type { Note } from '@/types/note';
 import type { User } from '@/types/user';
@@ -19,7 +19,7 @@ export const serverRegister = async (
 ): Promise<User> => {
   const cookieHeader = await getCookieHeader();
 
-  const res = await api.post(
+  const res = await nextServer.post(
     '/auth/register',
     { email, password },
     { headers: { Cookie: cookieHeader } }
@@ -34,7 +34,7 @@ export const serverLogin = async (
 ): Promise<User> => {
   const cookieHeader = await getCookieHeader();
 
-  const res = await api.post(
+  const res = await nextServer.post(
     '/auth/login',
     { email, password },
     { headers: { Cookie: cookieHeader } }
@@ -46,7 +46,7 @@ export const serverLogin = async (
 export const serverCheckSession = async () => {
   const cookieHeader = await getCookieHeader();
 
-  return api.get('/auth/session', {
+  return nextServer.get('/auth/session', {
     headers: { Cookie: cookieHeader },
   });
 };
@@ -54,7 +54,7 @@ export const serverCheckSession = async () => {
 export const serverGetMe = async (): Promise<User> => {
   const cookieHeader = await getCookieHeader();
 
-  const res = await api.get('/users/me', {
+  const res = await nextServer.get('/users/me', {
     headers: { Cookie: cookieHeader },
   });
 
@@ -64,7 +64,7 @@ export const serverGetMe = async (): Promise<User> => {
 export const serverFetchNotes = async (): Promise<Note[]> => {
   const cookieHeader = await getCookieHeader();
 
-  const res = await api.get('/notes', {
+  const res = await nextServer.get('/notes', {
     headers: { Cookie: cookieHeader },
   });
 
@@ -74,7 +74,7 @@ export const serverFetchNotes = async (): Promise<Note[]> => {
 export const serverFetchNoteById = async (id: string): Promise<Note> => {
   const cookieHeader = await getCookieHeader();
 
-  const res = await api.get(`/notes/${id}`, {
+  const res = await nextServer.get(`/notes/${id}`, {
     headers: { Cookie: cookieHeader },
   });
 
