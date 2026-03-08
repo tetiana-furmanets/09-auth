@@ -1,8 +1,7 @@
 // lib/api/clientApi.ts
-
-import { api } from '@/lib/api/api';
-import type { Note } from '@/types/note';
+import { nextServer as api } from '@/lib/api/api';import type { Note } from '@/types/note';
 import type { User } from '@/types/user';
+import type { LoginCredentials, RegisterCredentials, UpdateUserData } from '@/types/auth';
 
 export interface FetchNotesResponse {
   notes: Note[];
@@ -31,12 +30,12 @@ export const deleteNote = async (id: string): Promise<Note> => {
   return response.data;
 };
 
-export const register = async (credentials: { email: string; password: string }): Promise<User> => {
+export const register = async (credentials: RegisterCredentials): Promise<User> => {
   const response = await api.post<User>('/auth/register', credentials);
   return response.data;
 };
 
-export const login = async (credentials: { email: string; password: string }): Promise<User> => {
+export const login = async (credentials: LoginCredentials): Promise<User> => {
   const response = await api.post<User>('/auth/login', credentials);
   return response.data;
 };
@@ -59,7 +58,7 @@ export const getMe = async (): Promise<User> => {
   return response.data;
 };
 
-export const updateMe = async (data: { username: string }): Promise<User> => {
+export const updateMe = async (data: UpdateUserData): Promise<User> => {
   const response = await api.patch<User>('/users/me', data);
   return response.data;
 };

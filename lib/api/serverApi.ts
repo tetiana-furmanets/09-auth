@@ -1,5 +1,5 @@
 // lib/api/serverApi.ts
-import { api } from '@/lib/api/api';
+import { nextServer as api } from '@/lib/api/api';
 import { cookies } from 'next/headers';
 import type { Note } from '@/types/note';
 import type { User } from '@/types/user';
