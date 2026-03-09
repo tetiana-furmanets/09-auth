@@ -1,5 +1,6 @@
 // lib/api/clientApi.ts
-import { nextServer } from '@/lib/api/api';import type { Note } from '@/types/note';
+import { nextServer } from '@/lib/api/api';
+import type { Note } from '@/types/note';
 import type { User } from '@/types/user';
 import type { LoginCredentials, RegisterCredentials, UpdateUserData } from '@/types/auth';
 
@@ -47,7 +48,7 @@ export const logout = async (): Promise<void> => {
 export const checkSession = async (): Promise<User | null> => {
   try {
     const response = await nextServer.get<User>('/auth/session');
-    return response.data || null;
+    return response.data ?? null;
   } catch {
     return null;
   }

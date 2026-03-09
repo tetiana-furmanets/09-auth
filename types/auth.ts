@@ -5,10 +5,14 @@ export interface LoginCredentials {
 }
 
 export interface RegisterCredentials {
+  name?: string;     
   email: string;
   password: string;
 }
 
 export interface UpdateUserData {
   username: string;
+  name?: string;     
+  email?: string;
+  password?: string;
 }

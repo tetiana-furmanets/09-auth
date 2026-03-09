@@ -10,6 +10,7 @@ type Props = {
 };
 
 export default function NotesClient({ filterTag }: Props) {
+  // Якщо тег не вибраний або "All", не передаємо його серверу
   const normalizedTag = filterTag === 'All' ? undefined : filterTag || undefined;
 
   const { data, isLoading, error } = useQuery<FetchNotesResponse>({
@@ -19,22 +20,18 @@ export default function NotesClient({ filterTag }: Props) {
 
   const notes: Note[] = data?.notes || [];
 
-  const filteredNotes = normalizedTag
-    ? notes.filter(note => note.tag === normalizedTag)
-    : notes;
-
   if (isLoading) return <p className={styles.message}>Loading notes...</p>;
   if (error) return <p className={styles.message}>Error loading notes</p>;
-  if (!filteredNotes.length) return <p className={styles.message}>No notes found</p>;
+  if (!notes.length) return <p className={styles.message}>No notes found</p>;
 
   return (
     <div className={styles.notesGrid}>
-      {filteredNotes.map((note) => (
-      <div key={note.id} className={styles.noteCard}>
-  <h3 className={styles.noteTitle}>{note.title}</h3>
-  <p className={styles.noteContent}>{note.content}</p>
-  <span className={styles.noteTag}>{note.tag}</span>
-</div>
+      {notes.map(note => (
+        <div key={note.id} className={styles.noteCard}>
+          <h3 className={styles.noteTitle}>{note.title}</h3>
+          <p className={styles.noteContent}>{note.content}</p>
+          <span className={styles.noteTag}>{note.tag}</span>
+        </div>
       ))}
     </div>
   );
