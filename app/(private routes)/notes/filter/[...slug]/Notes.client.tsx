@@ -50,11 +50,8 @@ export default function NotesClient({ tag }: Props) {
         <button>Create note +</button>
       </Link>
 
-      {data.notes.length > 0 ? (
-        <NoteList notes={data.notes} />
-      ) : (
-        <p>No notes found.</p>
-      )}
+      {/* Передаємо нотатки у NoteList */}
+      <NoteList notes={data.notes} />
 
       {data.totalPages > 1 && (
         <Pagination

@@ -15,34 +15,28 @@ export default function NoteList({ notes }: Readonly<NoteListProps>) {
 
   const deleteMutation = useMutation({
     mutationFn: deleteNote,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notes'] }),
   });
 
   return (
     <div className={css.list}>
       {notes.map((note) => (
-        <div key={note.id} className={css.item}>
+        <div key={note.id} className={css.card}>
           <h3 className={css.title}>{note.title}</h3>
-
-          <p className={css.tag}>{note.tag}</p>
-
           <p className={css.content}>{note.content}</p>
-
+          <span className={css.tag}>{note.tag}</span>
           <div className={css.actions}>
             <Link href={`/notes/${note.id}`} className={css.link}>
               View details
             </Link>
-
             <button
-              type="button"
-              className={css.deleteButton}
-              onClick={() => deleteMutation.mutate(note.id)}
-              disabled={deleteMutation.isPending}
-            >
-              Delete
-            </button>
+  type="button"
+  className={css.deleteButton}
+  onClick={() => deleteMutation.mutate(note.id)}
+  disabled={deleteMutation.isPending}
+>
+  Delete
+</button>
           </div>
         </div>
       ))}
