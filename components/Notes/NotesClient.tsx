@@ -1,5 +1,3 @@
-//components/NotesClient.tsx
-
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
@@ -8,19 +6,20 @@ import type { Note } from '@/types/note';
 import styles from './NotesClient.module.css';
 
 type Props = {
-  filterTag?: string;
+  filterTag?: string | null;
 };
 
 export default function NotesClient({ filterTag }: Props) {
-  const tag = filterTag || '';
-
   const { data, isLoading, error } = useQuery({
-    queryKey: ['notes', tag],
-    queryFn: () => fetchNotes(1),
-    placeholderData: (prev) => prev,
+    queryKey: ['notes'],
+    queryFn: () => fetchNotes(1), 
   });
 
-  const notes: Note[] = data?.notes || [];
+  const allNotes: Note[] = data?.notes || [];
+
+  const notes = filterTag && filterTag !== 'All'
+    ? allNotes.filter(note => note.tag === filterTag)
+    : allNotes;
 
   if (isLoading) return <p className={styles.message}>Loading notes...</p>;
   if (error) return <p className={styles.message}>Error loading notes</p>;
