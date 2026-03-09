@@ -1,0 +1,42 @@
+.notesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.noteCard {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: #fff;
+  transition: box-shadow 0.2s ease;
+}
+
+.noteCard:hover {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.noteTitle {
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+}
+
+.noteContent {
+  font-size: 1rem;
+  color: #333;
+}
+
+.noteTag {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 4px 8px;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.message {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}

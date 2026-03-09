@@ -21,36 +21,26 @@ export default function NotesClient({ tag }: Props) {
   const [debounced, setDebounced] = useState<string>('');
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebounced(search);
-    }, 500);
-
+    const timer = setTimeout(() => setDebounced(search), 500);
     return () => clearTimeout(timer);
   }, [search]);
-
-  const handleSearchChange = (value: string) => {
-    setSearch(value);
-    setPage(1); 
-  };
 
   const { data, isLoading, isError } = useQuery<FetchNotesResponse, Error>({
     queryKey: ['notes', page, debounced, tag],
     queryFn: () => fetchNotes(page, 12, debounced, tag),
-    placeholderData: (previousData) => previousData,
   });
 
   if (isLoading) return <p>Loading...</p>;
   if (isError || !data) return <p>Error loading notes</p>;
 
   return (
-    <>
-      <SearchBox value={search} onChange={handleSearchChange} />
+    <div>
+      <SearchBox value={search} onChange={(v) => { setSearch(v); setPage(1); }} />
 
       <Link href="/notes/action/create">
-        <button>Create note +</button>
+        <button style={{ margin: '10px 0' }}>Create note +</button>
       </Link>
 
-      {/* Передаємо нотатки у NoteList */}
       <NoteList notes={data.notes} />
 
       {data.totalPages > 1 && (
@@ -60,6 +50,6 @@ export default function NotesClient({ tag }: Props) {
           onPageChange={setPage}
         />
       )}
-    </>
+    </div>
   );
 }

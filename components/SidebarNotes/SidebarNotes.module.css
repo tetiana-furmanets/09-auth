@@ -1,39 +1,28 @@
-.sidebarNotes {
+.sidebar {
   width: 220px;
-  background-color: #f9f9f9;
-  border-right: 1px solid #ddd;
+  border-right: 1px solid #ccc;
   padding: 20px;
-  height: 100vh;
-  box-sizing: border-box;
+  background-color: #f9f9f9;
+  min-height: 100vh;
 }
 
-.title {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 15px;
-}
-
-.list {
+.tagList {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.item {
-  padding: 10px 12px;
-  margin-bottom: 8px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
+.tagList li {
+  margin-bottom: 12px;
+}
+
+.tagLink {
+  text-decoration: none;
   color: #333;
-  transition: background-color 0.2s;
+  font-weight: 500;
 }
 
-.item:hover {
-  background-color: #e0e0e0;
-}
-
-.active {
-  background-color: #c0c0ff;
-  font-weight: 600;
+.active .tagLink {
+  color: #0070f3;
+  font-weight: 700;
 }

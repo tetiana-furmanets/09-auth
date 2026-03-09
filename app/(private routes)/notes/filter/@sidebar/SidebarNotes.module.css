@@ -1,0 +1,20 @@
+/* app/notes/filter/@sidebar/SidebarNotes.module.css */
+.menuList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menuItem + .menuItem {
+  margin-top: 10px;
+}
+
+.menuLink {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+}
+
+.menuLink:hover {
+  color: #0070f3;
+}

@@ -1,15 +1,22 @@
 // proxy.ts
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import type { NextRequest } from 'next/server';
 import { serverCheckSession } from './lib/api/serverApi';
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const accessToken = req.cookies.get('accessToken')?.value;
-  const refreshToken = req.cookies.get('refreshToken')?.value;
 
-  const isAuthRoute = ['/sign-in', '/sign-up'].some(r => pathname.startsWith(r));
-  const isPrivateRoute = ['/notes', '/profile'].some(r => pathname.startsWith(r));
+  const cookieStore = await cookies(); // ✅ await
+  const accessToken = cookieStore.get('accessToken')?.value;
+  const refreshToken = cookieStore.get('refreshToken')?.value;
+
+  const isAuthRoute =
+    pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up');
+
+  const isPrivateRoute =
+    pathname.startsWith('/notes') || pathname.startsWith('/profile');
 
   if (isAuthRoute && accessToken) {
     return NextResponse.redirect(new URL('/', req.url));
@@ -26,14 +33,23 @@ export async function proxy(req: NextRequest) {
   if (refreshToken) {
     try {
       const session = await serverCheckSession();
-      const { accessToken: newAccessToken, refreshToken: newRefreshToken } = session.data || {};
 
       const response = NextResponse.next();
-      if (newAccessToken) {
-        response.cookies.set('accessToken', newAccessToken, { httpOnly: true, secure: true, path: '/' });
+
+      if (session.data?.accessToken) {
+        response.cookies.set('accessToken', session.data.accessToken, {
+          httpOnly: true,
+          secure: true,
+          path: '/',
+        });
       }
-      if (newRefreshToken) {
-        response.cookies.set('refreshToken', newRefreshToken, { httpOnly: true, secure: true, path: '/' });
+
+      if (session.data?.refreshToken) {
+        response.cookies.set('refreshToken', session.data.refreshToken, {
+          httpOnly: true,
+          secure: true,
+          path: '/',
+        });
       }
 
       return response;

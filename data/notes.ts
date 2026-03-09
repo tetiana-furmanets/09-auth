@@ -1,3 +1,5 @@
+//app/data/notes.ts
+
 export type Note = {
   id: number;
   title: string;

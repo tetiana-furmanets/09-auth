@@ -1,4 +1,4 @@
-// app/notes/action/create/page.tsx
+// app/(private routes)/notes/action/create/page.tsx
 
 import type { Metadata } from 'next';
 import NoteFormWrapper from './NoteFormWrapper';

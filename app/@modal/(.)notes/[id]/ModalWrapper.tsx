@@ -1,3 +1,6 @@
+// app/@modal/(.)notes/[id]/page.tsx
+
+
 'use client';
 
 import { useRouter } from 'next/navigation';

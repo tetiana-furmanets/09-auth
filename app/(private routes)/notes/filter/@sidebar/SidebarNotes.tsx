@@ -1,20 +1,13 @@
 // app/notes/filter/@sidebar/SidebarNotes.tsx
-
 import Link from 'next/link';
-import css from '@/components/SidebarNotes/SidebarNotes.module.css';
+import css from './SidebarNotes.module.css';
 
-const tags = ['Work', 'Personal', 'Study', 'Other'];
+const tags = ['All', 'Work', 'Personal', 'Study', 'Other'];
 
 export default function SidebarNotes() {
   return (
     <ul className={css.menuList}>
-      <li className={css.menuItem}>
-        <Link href="/notes/filter/all" className={css.menuLink}>
-          All notes
-        </Link>
-      </li>
-
-      {tags.map(tag => (
+      {tags.map((tag) => (
         <li key={tag} className={css.menuItem}>
           <Link
             href={`/notes/filter/${tag}`}
@@ -27,4 +20,3 @@ export default function SidebarNotes() {
     </ul>
   );
 }
-
