@@ -10,8 +10,7 @@ type Props = {
 };
 
 export default function NotesClient({ filterTag }: Props) {
-  // Якщо тег не вибраний або "All", не передаємо його серверу
-  const normalizedTag = filterTag === 'All' ? undefined : filterTag || undefined;
+  const normalizedTag = filterTag && filterTag !== 'All' ? filterTag : undefined;
 
   const { data, isLoading, error } = useQuery<FetchNotesResponse>({
     queryKey: ['notes', normalizedTag],
