@@ -2,6 +2,7 @@
 'use client';
 
 import { useEffect, useState, ReactNode } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/authStore';
 import { checkSession, getMe } from '@/lib/api/clientApi';
 
@@ -9,30 +10,47 @@ interface Props {
   children: ReactNode;
 }
 
+const privateRoutes = ['/profile'];
+const publicRoutes = ['/sign-in', '/sign-up'];
+
 export default function AuthProvider({ children }: Props) {
-  const { setUser, clearAuth } = useAuthStore();
+  const { setUser, clearIsAuthenticated } = useAuthStore();
+  const pathname = usePathname();
+  const router = useRouter();
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const verifySession = async () => {
       try {
-        const sessionValid = await checkSession();
+        const session = await checkSession();
 
-        if (sessionValid) {
+        if (session) {
           const user = await getMe();
           setUser(user);
+
+          // якщо залогінений і відкрив auth сторінку
+          if (publicRoutes.includes(pathname)) {
+            router.push('/profile');
+          }
         } else {
-          clearAuth();
+          clearIsAuthenticated();
+
+          // якщо НЕ залогінений і лізе в приватну
+          if (privateRoutes.includes(pathname)) {
+            router.push('/sign-in');
+          }
         }
       } catch {
-        clearAuth();
+        clearIsAuthenticated();
+        router.push('/sign-in');
       } finally {
         setLoading(false);
       }
     };
 
     verifySession();
-  }, [setUser, clearAuth]);
+  }, [pathname, router, setUser, clearIsAuthenticated]);
 
   if (loading) {
     return <p>Loading...</p>;

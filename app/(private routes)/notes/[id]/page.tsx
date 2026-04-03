@@ -1,19 +1,24 @@
 // app/(private routes)/notes/[id]/page.tsx
+import type { Metadata } from 'next';
 import {
   QueryClient,
   HydrationBoundary,
   dehydrate,
 } from '@tanstack/react-query';
-import { serverFetchNoteById } from '@/lib/api/serverApi';import NoteDetailsClient from './NoteDetails.client';
-import type { Metadata } from 'next';
+import { serverFetchNoteById } from '@/lib/api/serverApi';
+import NoteDetailsClient from './NoteDetails.client';
 
 type Props = {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = await params;
-const note = await serverFetchNoteById(id);
+  const { id } = params;
+
+  const baseUrl = 'https://your-vercel-url.vercel.app';
+
+  const note = await serverFetchNoteById(id);
+
   if (!note) {
     return {
       title: 'Note not found',
@@ -21,23 +26,25 @@ const note = await serverFetchNoteById(id);
       openGraph: {
         title: 'Note not found',
         description: 'The requested note does not exist in NoteHub.',
-        url: `https://08-zustand-1vb4-jqdoseqjj-tetiana-furmanets.vercel.app/notes/${id}`,
+        url: `${baseUrl}/notes/${id}`,
         images: [
           {
-            url: `https://08-zustand-1vb4-jqdoseqjj-tetiana-furmanets.vercel.app/notes/${id}`,
+            url: 'https://ac.goit.global/fullstack/react/notehub-og-meta.jpg',
           },
         ],
       },
     };
   }
 
+  const description = note.content.slice(0, 150);
+
   return {
     title: note.title,
-    description: note.content.slice(0, 150),
+    description,
     openGraph: {
       title: note.title,
-      description: note.content.slice(0, 150),
-      url: `https://your-vercel-url.vercel.app/notes/${id}`,
+      description,
+      url: `${baseUrl}/notes/${id}`,
       images: [
         {
           url: 'https://ac.goit.global/fullstack/react/notehub-og-meta.jpg',
@@ -48,7 +55,7 @@ const note = await serverFetchNoteById(id);
 }
 
 export default async function NotePage({ params }: Props) {
-  const { id } = await params;
+  const { id } = params;
 
   const queryClient = new QueryClient();
 

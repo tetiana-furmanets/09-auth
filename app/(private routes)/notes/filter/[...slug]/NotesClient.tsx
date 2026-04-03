@@ -1,55 +1,37 @@
-// app/(private routes)/notes/filter/[...slug]/Notes.client.tsx
-
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { fetchNotes } from '@/lib/api/clientApi';
-import NoteList from '@/components/NoteList/NoteList';
-import SearchBox from '@/components/SearchBox/SearchBox';
-import { Pagination } from '@/components/Pagination/Pagination';
-import Link from 'next/link';
-import type { FetchNotesResponse } from '@/types/note';
+import { fetchNotes, FetchNotesResponse } from '@/lib/api/clientApi';
+import type { Note } from '@/types/note';
+import styles from './NotesClient.module.css';
 
 type Props = {
-  tag?: string;
+  filterTag?: string | null;
 };
 
-export default function NotesClient({ tag }: Props) {
-  const [page, setPage] = useState<number>(1);
-  const [search, setSearch] = useState<string>('');
-  const [debounced, setDebounced] = useState<string>('');
+export default function NotesClient({ filterTag }: Props) {
+  const normalizedTag = filterTag && filterTag !== 'All' ? filterTag : undefined;
 
-  useEffect(() => {
-    const timer = setTimeout(() => setDebounced(search), 500);
-    return () => clearTimeout(timer);
-  }, [search]);
-
-  const { data, isLoading, isError } = useQuery<FetchNotesResponse, Error>({
-    queryKey: ['notes', page, debounced, tag],
-    queryFn: () => fetchNotes(page, 12, debounced, tag),
+  const { data, isLoading, error } = useQuery<FetchNotesResponse>({
+    queryKey: ['notes', normalizedTag],
+    queryFn: () => fetchNotes(1, 12, '', normalizedTag),
   });
 
-  if (isLoading) return <p>Loading...</p>;
-  if (isError || !data) return <p>Error loading notes</p>;
+  const notes: Note[] = data?.notes || [];
+
+  if (isLoading) return <p className={styles.message}>Loading notes...</p>;
+  if (error) return <p className={styles.message}>Error loading notes</p>;
+  if (!notes.length) return <p className={styles.message}>No notes found</p>;
 
   return (
-    <div>
-      <SearchBox value={search} onChange={(v) => { setSearch(v); setPage(1); }} />
-
-      <Link href="/notes/action/create">
-        <button style={{ margin: '10px 0' }}>Create note +</button>
-      </Link>
-
-      <NoteList notes={data.notes} />
-
-      {data.totalPages > 1 && (
-        <Pagination
-          pageCount={data.totalPages}
-          currentPage={page}
-          onPageChange={setPage}
-        />
-      )}
+    <div className={styles.notesGrid}>
+      {notes.map(note => (
+        <div key={note.id} className={styles.noteCard}>
+          <h3 className={styles.noteTitle}>{note.title}</h3>
+          <p className={styles.noteContent}>{note.content}</p>
+          <span className={styles.noteTag}>{note.tag}</span>
+        </div>
+      ))}
     </div>
   );
 }
