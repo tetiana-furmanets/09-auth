@@ -1,3 +1,6 @@
+// app/(private routes)/notes/filter/[...slug]/NotesClient.tsx
+
+
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
@@ -5,12 +8,12 @@ import { fetchNotes, FetchNotesResponse } from '@/lib/api/clientApi';
 import type { Note } from '@/types/note';
 import styles from './NotesClient.module.css';
 
-type Props = {
-  filterTag?: string | null;
+type NotesClientProps = {
+  tag: string;
 };
 
-export default function NotesClient({ filterTag }: Props) {
-  const normalizedTag = filterTag && filterTag !== 'All' ? filterTag : undefined;
+export default function NotesClient({ tag }: NotesClientProps) {
+  const normalizedTag = tag === 'all' ? undefined : tag;
 
   const { data, isLoading, error } = useQuery<FetchNotesResponse>({
     queryKey: ['notes', normalizedTag],

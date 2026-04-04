@@ -4,11 +4,13 @@ import { Metadata } from 'next';
 import NotesClient from './NotesClient';
 
 type Props = {
-  params: { slug?: string[] };
+  params: Promise<{ slug?: string[] }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const tag = params.slug?.[0] || 'all';
+  const { slug } = await params;
+
+  const tag = slug?.[0] || 'all';
 
   const isAll = tag === 'all';
 
@@ -23,7 +25,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
-
     openGraph: {
       title,
       description,
@@ -37,8 +38,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default function NotesFilterPage({ params }: Props) {
-  const tag = params.slug?.[0] || 'all';
+export default async function NotesFilterPage({ params }: Props) {
+  const { slug } = await params;
+
+  const tag = slug?.[0] || 'all';
 
   return <NotesClient tag={tag} />;
 }

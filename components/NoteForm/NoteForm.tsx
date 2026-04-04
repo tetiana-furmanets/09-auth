@@ -16,8 +16,12 @@ const TAGS: NoteTag[] = [
   'Shopping',
 ];
 
-export default function NoteForm() {
-  const router = useRouter();
+type NoteFormProps = {
+  onClose: () => void;
+};
+
+
+export default function NoteForm({ onClose }: NoteFormProps) {  const router = useRouter();
   const { draft, setDraft, clearDraft } = useNoteStore();
 
   const handleChange = (
@@ -43,7 +47,7 @@ export default function NoteForm() {
 
     clearDraft();
 
-    router.back(); // ✅ правильно по ТЗ
+onClose();
   };
 
   return (
@@ -90,8 +94,7 @@ export default function NoteForm() {
       </div>
 
       <div className={css.actions}>
-        <button type="button" onClick={() => router.back()}>
-          Cancel
+      <button type="button" onClick={onClose}>          Cancel
         </button>
 
         <button type="submit">Create Note</button>

@@ -43,17 +43,17 @@ export default async function ProfilePage() {
         </div>
 
         <div className={css.avatarWrapper}>
-          <Image
-            src={user.photoUrl || '/default-avatar.png'}
-            alt="User Avatar"
-            width={120}
-            height={120}
-            className={css.avatar}
-          />
+        <Image
+        src={user.avatar || '/default-avatar.png'}
+        alt="User Avatar"
+        width={120}
+        height={120}
+        className={css.avatar}
+        />
         </div>
 
         <div className={css.profileInfo}>
-          <p>Username: {user.userName}</p>
+          <p>Username: {user.username}</p>
           <p>Email: {user.email}</p>
         </div>
       </div>

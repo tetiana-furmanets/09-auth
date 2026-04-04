@@ -9,8 +9,7 @@ import { useState } from 'react';
 import css from './AuthNavigation.module.css';
 
 export default function AuthNavigation() {
-  const { user, isAuthenticated, clearAuth } = useAuthStore();
-  const router = useRouter();
+const { user, isAuthenticated, logout: clearAuth } = useAuthStore();  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const handleLogout = async () => {

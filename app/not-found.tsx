@@ -1,5 +1,6 @@
 // app/not-found.tsx
 
+import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: '404 | Page not found',
   description: 'This page does not exist in NoteHub.',

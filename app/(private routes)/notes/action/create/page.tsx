@@ -9,7 +9,6 @@ const baseUrl = 'https://your-vercel-url.vercel.app';
 export const metadata: Metadata = {
   title: 'Create note | NoteHub',
   description: 'Create a new note in NoteHub.',
-  url: `${baseUrl}/notes/action/create`, // ✅ ДОДАЛИ
 
   openGraph: {
     title: 'Create note | NoteHub',
