@@ -14,7 +14,7 @@ const privateRoutes = ['/profile'];
 const publicRoutes = ['/sign-in', '/sign-up'];
 
 export default function AuthProvider({ children }: Props) {
-  const { setUser, clearIsAuthenticated } = useAuthStore();
+  const { setUser, clearAuth } = useAuthStore(); 
   const pathname = usePathname();
   const router = useRouter();
 
@@ -29,20 +29,17 @@ export default function AuthProvider({ children }: Props) {
           const user = await getMe();
           setUser(user);
 
-          // якщо залогінений і відкрив auth сторінку
           if (publicRoutes.includes(pathname)) {
             router.push('/profile');
           }
         } else {
-          clearIsAuthenticated();
-
-          // якщо НЕ залогінений і лізе в приватну
+          clearAuth(); 
           if (privateRoutes.includes(pathname)) {
             router.push('/sign-in');
           }
         }
       } catch {
-        clearIsAuthenticated();
+        clearAuth(); 
         router.push('/sign-in');
       } finally {
         setLoading(false);
@@ -50,7 +47,7 @@ export default function AuthProvider({ children }: Props) {
     };
 
     verifySession();
-  }, [pathname, router, setUser, clearIsAuthenticated]);
+  }, [pathname, router, setUser, clearAuth]); 
 
   if (loading) {
     return <p>Loading...</p>;

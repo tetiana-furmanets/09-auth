@@ -31,14 +31,16 @@ const NoteDetailsClient = () => {
     ? `Updated at: ${note.updatedAt}`
     : `Created at: ${note.createdAt}`;
 
-  return (
-    <div>
-      <button onClick={handleGoBack}>Back</button>
-      <h2>{note.title}</h2>
-      <p>{note.content}</p>
-      <p>{formattedDate}</p>
-    </div>
-  );
-};
+ return (
+  <div className={css.container}>
+    <button onClick={handleGoBack} className={css.button}>
+      Back
+    </button>
 
+    <h2 className={css.title}>{note.title}</h2>
+    <p className={css.content}>{note.content}</p>
+    <p className={css.date}>{formattedDate}</p>
+  </div>
+);
+};
 export default NoteDetailsClient;

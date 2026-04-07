@@ -1,6 +1,4 @@
 // lib/store/authStore.ts
-
-
 import { create } from 'zustand';
 import type { User } from '@/types/user';
 
@@ -8,8 +6,8 @@ interface AuthStore {
   user: User | null;
   isAuthenticated: boolean;
   setUser: (user: User) => void;
-  clearIsAuthenticated: () => void;
-  logout: () => void;
+  clearAuth: () => void;
+  logout: () => void; // додаємо logout у тип
 }
 
 export const useAuthStore = create<AuthStore>()((set) => ({
@@ -21,13 +19,14 @@ export const useAuthStore = create<AuthStore>()((set) => ({
       user,
       isAuthenticated: true,
     }),
-     logout: () => 
-      set({ 
-        user: null, 
-        isAuthenticated: false 
-      }),
 
-  clearIsAuthenticated: () =>
+  clearAuth: () =>
+    set({
+      user: null,
+      isAuthenticated: false,
+    }),
+
+  logout: () =>
     set({
       user: null,
       isAuthenticated: false,

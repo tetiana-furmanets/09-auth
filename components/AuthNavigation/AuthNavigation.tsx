@@ -4,19 +4,20 @@
 import { useAuthStore } from '@/lib/store/authStore';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { logout } from '@/lib/api/clientApi';
+import { logout as apiLogout } from '@/lib/api/clientApi';
 import { useState } from 'react';
 import css from './AuthNavigation.module.css';
 
 export default function AuthNavigation() {
-const { user, isAuthenticated, logout: clearAuth } = useAuthStore();  const router = useRouter();
+  const { user, isAuthenticated, logout } = useAuthStore(); 
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const handleLogout = async () => {
     setLoading(true);
     try {
-      await logout();
-      clearAuth();
+      await apiLogout(); 
+      logout(); 
       router.push('/sign-in');
     } catch (error) {
       console.error('Logout failed', error);

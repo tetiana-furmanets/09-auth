@@ -46,7 +46,7 @@ export default function NoteForm({ onClose }: NoteFormProps) {  const router = u
     await createNote(newNote);
 
     clearDraft();
-
+router.push('/notes');
 onClose();
   };
 

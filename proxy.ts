@@ -30,33 +30,15 @@ export async function proxy(req: NextRequest) {
     return NextResponse.next();
   }
 
-  if (refreshToken) {
-    try {
-      const session = await serverCheckSession();
+ if (refreshToken) {
+  try {
+    await serverCheckSession();
 
-      const response = NextResponse.next();
-
-      if (session.data?.accessToken) {
-        response.cookies.set('accessToken', session.data.accessToken, {
-          httpOnly: true,
-          secure: true,
-          path: '/',
-        });
-      }
-
-      if (session.data?.refreshToken) {
-        response.cookies.set('refreshToken', session.data.refreshToken, {
-          httpOnly: true,
-          secure: true,
-          path: '/',
-        });
-      }
-
-      return response;
-    } catch {
-      return NextResponse.redirect(new URL('/sign-in', req.url));
-    }
+    return NextResponse.next();
+  } catch {
+    return NextResponse.redirect(new URL('/sign-in', req.url));
   }
+}
 
   return NextResponse.next();
 }
