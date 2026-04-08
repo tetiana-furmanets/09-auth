@@ -7,7 +7,6 @@ interface AuthStore {
   isAuthenticated: boolean;
   setUser: (user: User) => void;
   clearAuth: () => void;
-  logout: () => void; // додаємо logout у тип
 }
 
 export const useAuthStore = create<AuthStore>()((set) => ({
@@ -26,9 +25,4 @@ export const useAuthStore = create<AuthStore>()((set) => ({
       isAuthenticated: false,
     }),
 
-  logout: () =>
-    set({
-      user: null,
-      isAuthenticated: false,
-    }),
 }));

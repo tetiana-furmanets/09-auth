@@ -9,7 +9,7 @@ import { useState } from 'react';
 import css from './AuthNavigation.module.css';
 
 export default function AuthNavigation() {
-  const { user, isAuthenticated, logout } = useAuthStore(); 
+  const { user, isAuthenticated, clearAuth } = useAuthStore();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -17,7 +17,7 @@ export default function AuthNavigation() {
     setLoading(true);
     try {
       await apiLogout(); 
-      logout(); 
+clearAuth();
       router.push('/sign-in');
     } catch (error) {
       console.error('Logout failed', error);

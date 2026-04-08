@@ -5,16 +5,13 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/authStore';
 
 export default function LogoutButton() {
-const { logout: clearAuth } = useAuthStore();  const router = useRouter(); 
+  const { clearAuth } = useAuthStore();
+  const router = useRouter();
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     clearAuth();
-    router.push('/login'); 
+    router.push('/login');
   };
 
-  return (
-    <button onClick={handleLogout}>
-      Logout
-    </button>
-  );
+  return <button onClick={handleLogout}>Logout</button>;
 }
