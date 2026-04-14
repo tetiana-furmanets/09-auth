@@ -4,7 +4,10 @@
   margin-right: 0.5rem;
   font-size: 0.9rem;
 }
-
+.sidebar {
+  width: 250px;
+  flex-shrink: 0;
+}
 .logoutButton {
   background: transparent;
   border: 1px solid white;

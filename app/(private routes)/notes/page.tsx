@@ -10,9 +10,14 @@ import css from './NotesPage.module.css';
 
 export default function NotesPage() {
   return (
-    <div className={css.container}>
-      <SidebarNotes />
-      <NotesClient tag="all" />
-    </div>
+<div className={css.container}>
+  <div className={css.sidebar}>
+    <SidebarNotes />
+  </div>
+
+  <div className={css.content}>
+    <NotesClient tag="all" />
+  </div>
+</div>
   );
 }

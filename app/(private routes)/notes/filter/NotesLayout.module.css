@@ -1,13 +1,11 @@
-/* app/notes/filter/NotesLayout.module.css */
-.container {
+.layout {
   display: flex;
-  flex-direction: row;
-  flex: 1;
+  min-height: 100vh;
 }
 
 .sidebar {
   width: 250px;
-  background: color red; ;
+  background-color: #343a40;
   color: white;
   padding: 16px;
   display: flex;
@@ -15,6 +13,7 @@
   border-right: 1px solid #ddd;
 }
 
-.notesWrapper {
-  width: 100%;
+.content {
+  flex: 1;
+  padding: 24px;
 }

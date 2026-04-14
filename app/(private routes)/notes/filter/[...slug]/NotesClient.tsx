@@ -26,15 +26,15 @@ export default function NotesClient({ tag }: NotesClientProps) {
   if (error) return <p className={styles.message}>Error loading notes</p>;
   if (!notes.length) return <p className={styles.message}>No notes found</p>;
 
-  return (
-    <div className={styles.notesGrid}>
-      {notes.map(note => (
-        <div key={note.id} className={styles.noteCard}>
-          <h3 className={styles.noteTitle}>{note.title}</h3>
-          <p className={styles.noteContent}>{note.content}</p>
-          <span className={styles.noteTag}>{note.tag}</span>
-        </div>
-      ))}
-    </div>
-  );
+return (
+  <div className={styles.list}>
+    {notes.map(note => (
+      <div key={note.id} className={styles.card}>
+        <h3 className={styles.title}>{note.title}</h3>
+        <p className={styles.content}>{note.content}</p>
+        <span className={styles.tag}>{note.tag}</span>
+      </div>
+    ))}
+  </div>
+);
 }
