@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/authStore';
 
 export default function LogoutButton() {
-  const { clearAuth } = useAuthStore();
+  const clearAuth = useAuthStore((state) => state.clearAuth);
   const router = useRouter();
 
   const handleLogout = () => {
