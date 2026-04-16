@@ -5,7 +5,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { fetchNotes, FetchNotesResponse } from '@/lib/api/clientApi';
-import type { Note } from '@/types/note';
+import type { Note, NoteTag } from '@/types/note';
 import styles from './NotesClient.module.css';
 
 type NotesClientProps = {
@@ -13,15 +13,15 @@ type NotesClientProps = {
 };
 
 export default function NotesClient({ tag }: NotesClientProps) {
-  const normalizedTag = tag === 'all' ? undefined : tag;
+const normalizedTag: NoteTag | undefined =
+  tag === 'all' ? undefined : (tag as NoteTag);
+  
+const { data, isLoading, error } = useQuery<FetchNotesResponse>({
+  queryKey: ['notes', normalizedTag],
+  queryFn: () => fetchNotes(1, 12, '', normalizedTag),
+});
 
-  const { data, isLoading, error } = useQuery<FetchNotesResponse>({
-    queryKey: ['notes', normalizedTag],
-    queryFn: () => fetchNotes(1, 12, '', normalizedTag),
-  });
-
-  const notes: Note[] = data?.notes || [];
-
+const notes: Note[] = data?.notes ?? [];
   if (isLoading) return <p className={styles.message}>Loading notes...</p>;
   if (error) return <p className={styles.message}>Error loading notes</p>;
   if (!notes.length) return <p className={styles.message}>No notes found</p>;
