@@ -36,7 +36,7 @@ export const useNoteStore = create<NoteStore>()(
     }),
     {
       name: 'note-draft',
-      partialize: (state) => ({ draft: state.draft }), // ✅ важливо
+      partialize: (state) => ({ draft: state.draft }), 
     }
   )
 );
