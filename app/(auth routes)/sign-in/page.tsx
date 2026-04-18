@@ -10,8 +10,7 @@ import css from './SignIn.module.css';
 
 export default function SignInPage() {
   const router = useRouter();
-  const { setUser } = useAuthStore();
-
+const setUser = useAuthStore((s) => s.setUser);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);

@@ -9,7 +9,9 @@ import { useState } from 'react';
 import css from './AuthNavigation.module.css';
 
 export default function AuthNavigation() {
-  const { user, isAuthenticated, clearAuth } = useAuthStore();
+const user = useAuthStore((s) => s.user);
+const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const clearAuth = useAuthStore((s) => s.clearAuth);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 

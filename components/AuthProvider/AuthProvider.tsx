@@ -14,8 +14,8 @@ const privateRoutes = ['/profile'];
 const publicRoutes = ['/sign-in', '/sign-up'];
 
 export default function AuthProvider({ children }: Props) {
-  const { setUser, clearAuth } = useAuthStore(); 
-  const pathname = usePathname();
+const setUser = useAuthStore((s) => s.setUser);
+const clearAuth = useAuthStore((s) => s.clearAuth);  const pathname = usePathname();
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
