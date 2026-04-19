@@ -24,7 +24,7 @@ export default function SignUpPage() {
     try {
       const user = await register({ email, password });
       setUser(user);
-      router.push('/profile');
+      router.replace('/profile');
     } catch {
       setError('Sign up failed');
     } finally {
@@ -37,37 +37,25 @@ export default function SignUpPage() {
       <form className={css.form} onSubmit={handleSubmit}>
         <h1 className={css.formTitle}>Sign up</h1>
 
-        <div className={css.formGroup}>
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            name="email"
-            className={css.input}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className={css.input}
+          required
+        />
 
-        <div className={css.formGroup}>
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            name="password"
-            className={css.input}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className={css.input}
+          required
+        />
 
-        <div className={css.actions}>
-          <button type="submit" className={css.submitButton} disabled={loading}>
-            {loading ? 'Creating account...' : 'Sign up'}
-          </button>
-        </div>
+        <button type="submit" disabled={loading}>
+          {loading ? 'Creating account...' : 'Sign up'}
+        </button>
 
         {error && <p className={css.error}>{error}</p>}
       </form>

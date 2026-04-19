@@ -10,7 +10,8 @@ import css from './SignIn.module.css';
 
 export default function SignInPage() {
   const router = useRouter();
-const setUser = useAuthStore((s) => s.setUser);
+  const setUser = useAuthStore((s) => s.setUser);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -24,7 +25,7 @@ const setUser = useAuthStore((s) => s.setUser);
     try {
       const user = await login({ email, password });
       setUser(user);
-      router.push('/profile');
+      router.replace('/profile');
     } catch {
       setServerError('Login failed');
     } finally {

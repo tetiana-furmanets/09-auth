@@ -10,8 +10,9 @@ import css from './EditProfilePage.module.css';
 
 export default function EditProfilePage() {
   const router = useRouter();
-  const { user, setUser } = useAuthStore();
-
+  const user = useAuthStore((s) => s.user);
+  const setUser = useAuthStore((s) => s.setUser);
+  
   const [username, setUsername] = useState(user?.username || '');
   const [email, setEmail] = useState(user?.email || '');
   const [avatar, setAvatar] = useState(user?.avatar || '');

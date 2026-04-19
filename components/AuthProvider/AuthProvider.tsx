@@ -14,8 +14,10 @@ const privateRoutes = ['/profile'];
 const publicRoutes = ['/sign-in', '/sign-up'];
 
 export default function AuthProvider({ children }: Props) {
-const setUser = useAuthStore((s) => s.setUser);
-const clearAuth = useAuthStore((s) => s.clearAuth);  const pathname = usePathname();
+  const setUser = useAuthStore((s) => s.setUser);
+  const clearAuth = useAuthStore((s) => s.clearAuth);
+
+  const pathname = usePathname();
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
@@ -30,28 +32,30 @@ const clearAuth = useAuthStore((s) => s.clearAuth);  const pathname = usePathnam
           setUser(user);
 
           if (publicRoutes.includes(pathname)) {
-            router.push('/profile');
+            router.replace('/profile');
           }
         } else {
-          clearAuth(); 
+          clearAuth();
+
           if (privateRoutes.includes(pathname)) {
-            router.push('/sign-in');
+            router.replace('/sign-in');
           }
         }
       } catch {
-        clearAuth(); 
-        router.push('/sign-in');
+        clearAuth();
+
+        if (privateRoutes.includes(pathname)) {
+          router.replace('/sign-in');
+        }
       } finally {
         setLoading(false);
       }
     };
 
     verifySession();
-  }, [pathname, router, setUser, clearAuth]); 
+  }, [pathname, router, setUser, clearAuth]);
 
-  if (loading) {
-    return <p>Loading...</p>;
-  }
+  if (loading) return <p>Loading...</p>;
 
   return <>{children}</>;
 }
