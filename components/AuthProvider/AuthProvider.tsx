@@ -2,7 +2,6 @@
 'use client';
 
 import { useEffect, useState, ReactNode } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/authStore';
 import { checkSession, getMe } from '@/lib/api/clientApi';
 
@@ -10,15 +9,9 @@ interface Props {
   children: ReactNode;
 }
 
-const privateRoutes = ['/profile'];
-const publicRoutes = ['/sign-in', '/sign-up'];
-
 export default function AuthProvider({ children }: Props) {
   const setUser = useAuthStore((s) => s.setUser);
   const clearAuth = useAuthStore((s) => s.clearAuth);
-
-  const pathname = usePathname();
-  const router = useRouter();
 
   const [loading, setLoading] = useState(true);
 
@@ -30,32 +23,22 @@ export default function AuthProvider({ children }: Props) {
         if (session) {
           const user = await getMe();
           setUser(user);
-
-          if (publicRoutes.includes(pathname)) {
-            router.replace('/profile');
-          }
         } else {
           clearAuth();
-
-          if (privateRoutes.includes(pathname)) {
-            router.replace('/sign-in');
-          }
         }
       } catch {
         clearAuth();
-
-        if (privateRoutes.includes(pathname)) {
-          router.replace('/sign-in');
-        }
       } finally {
         setLoading(false);
       }
     };
 
     verifySession();
-  }, [pathname, router, setUser, clearAuth]);
+  }, [setUser, clearAuth]);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) {
+    return <p>Loading...</p>;
+  }
 
   return <>{children}</>;
 }

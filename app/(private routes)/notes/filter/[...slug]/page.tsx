@@ -1,7 +1,7 @@
 // app/(private routes)/notes/filter/[...slug]/page.tsx
 
 import { Metadata } from 'next';
-import NotesClient from './Notes.Client';
+import NotesClient from './Notes.client';
 
 type Props = {
   params: Promise<{ slug?: string[] }>;
