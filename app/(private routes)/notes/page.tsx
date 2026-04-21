@@ -2,7 +2,7 @@
 
 'use client';
 
-import NotesClient from './filter/[...slug]/Notes.client';
+import NotesClient from './filter/[...slug]/NotesClient';
 import SidebarNotes from '@/app/(private routes)/notes/filter/@sidebar/SidebarNotes';
 import css from './NotesPage.module.css';
 

@@ -6,7 +6,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchNotes, FetchNotesResponse } from '@/lib/api/clientApi';
 import type { Note, NoteTag } from '@/types/note';
-import styles from './Notes.Client.module.css';
+import styles from './Notes.client.module.css'
 
 type NotesClientProps = {
   tag: string;
