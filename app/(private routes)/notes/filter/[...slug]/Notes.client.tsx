@@ -63,11 +63,11 @@ export default function NotesClient({ tag }: NotesClientProps) {
 
       <SearchBox value={search} onChange={setSearch} />
 
-      <NoteList notes={notes} />
-
-      {!notes.length && (
-        <p className={styles.message}>No notes found</p>
-      )}
+    {notes.length > 0 ? (
+  <NoteList notes={notes} />
+) : (
+  <p className={styles.message}>No notes found</p>
+)}
 
       {notes.length > 0 && (
         <Pagination
