@@ -36,15 +36,21 @@ export async function proxy(req: NextRequest) {
 
       const res = NextResponse.next();
 
-const setCookie = response?.headers?.['set-cookie'];
+      const setCookie = response?.headers?.['set-cookie'];
 
-if (setCookie) {
-  const cookies = Array.isArray(setCookie) ? setCookie : [setCookie];
+      if (setCookie) {
+        const cookiesArr = Array.isArray(setCookie)
+          ? setCookie
+          : [setCookie];
 
-  cookies.forEach((cookie) => {
-    res.headers.append('set-cookie', cookie);
-  });
-}
+        cookiesArr.forEach((cookie) => {
+          res.headers.append('set-cookie', cookie);
+        });
+      }
+
+      if (isAuthRoute) {
+        return NextResponse.redirect(new URL('/', req.url));
+      }
 
       return res;
     } catch {

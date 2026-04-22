@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchNotes, FetchNotesResponse } from '@/lib/api/clientApi';
 import type { Note, NoteTag } from '@/types/note';
@@ -24,20 +24,36 @@ export default function NotesClient({ tag }: NotesClientProps) {
     tag === 'all' ? undefined : (tag as NoteTag);
 
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [page, setPage] = useState(1);
 
   const limit = 12;
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [search]);
+
   const { data, isLoading, error } = useQuery<FetchNotesResponse>({
-    queryKey: ['notes', normalizedTag, page, search],
-    queryFn: () => fetchNotes(page, limit, search, normalizedTag),
+    queryKey: ['notes', normalizedTag, page, debouncedSearch],
+    queryFn: () =>
+      fetchNotes(page, limit, debouncedSearch, normalizedTag),
   });
 
   const notes: Note[] = data?.notes ?? [];
   const totalPages = data?.totalPages ?? 1;
 
-  if (isLoading) return <p className={styles.message}>Loading notes...</p>;
-  if (error) return <p className={styles.message}>Error loading notes</p>;
+  if (isLoading) {
+    return <p className={styles.message}>Loading notes...</p>;
+  }
+
+  if (error) {
+    return <p className={styles.message}>Error loading notes</p>;
+  }
 
   return (
     <div className={styles.wrapper}>
@@ -53,11 +69,13 @@ export default function NotesClient({ tag }: NotesClientProps) {
         <p className={styles.message}>No notes found</p>
       )}
 
-<Pagination
-  currentPage={page}
-  pageCount={totalPages}
-  onPageChange={setPage}
-/>
+      {notes.length > 0 && (
+        <Pagination
+          currentPage={page}
+          pageCount={totalPages}
+          onPageChange={setPage}
+        />
+      )}
     </div>
   );
 }
