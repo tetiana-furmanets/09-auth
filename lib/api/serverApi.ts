@@ -4,6 +4,7 @@ import { nextServer } from '@/lib/api/api';
 import { cookies } from 'next/headers';
 import type { Note } from '@/types/note';
 import type { User } from '@/types/user';
+import type { AxiosResponse, AxiosError } from 'axios';
 
 async function getCookieHeader(): Promise<string> {
   const cookieStore = await cookies();
@@ -14,24 +15,28 @@ async function getCookieHeader(): Promise<string> {
     .join('; ');
 }
 
-export const serverCheckSession = async (): Promise<User | null> => {
+export const serverCheckSession = async (): Promise<AxiosResponse<User | null>> => {
   const cookieHeader = await getCookieHeader();
 
   try {
-    const res = await nextServer.get('/auth/session', {
+    return await nextServer.get<User | null>('/auth/session', {
       headers: { Cookie: cookieHeader },
     });
+  } catch (error) {
+    const err = error as AxiosError<User | null>;
 
-    return res.data ?? null;
-  } catch {
-    return null;
+    if (err.response) {
+      return err.response;
+    }
+
+    throw error;
   }
 };
 
 export const serverGetMe = async (): Promise<User> => {
   const cookieHeader = await getCookieHeader();
 
-  const res = await nextServer.get('/users/me', {
+  const res = await nextServer.get<User>('/users/me', {
     headers: { Cookie: cookieHeader },
   });
 
@@ -46,7 +51,7 @@ export interface FetchNotesResponse {
 export const serverFetchNotes = async (): Promise<FetchNotesResponse> => {
   const cookieHeader = await getCookieHeader();
 
-  const res = await nextServer.get('/notes', {
+  const res = await nextServer.get<FetchNotesResponse>('/notes', {
     headers: { Cookie: cookieHeader },
   });
 
@@ -56,7 +61,7 @@ export const serverFetchNotes = async (): Promise<FetchNotesResponse> => {
 export const serverFetchNoteById = async (id: string): Promise<Note> => {
   const cookieHeader = await getCookieHeader();
 
-  const res = await nextServer.get(`/notes/${id}`, {
+  const res = await nextServer.get<Note>(`/notes/${id}`, {
     headers: { Cookie: cookieHeader },
   });
 

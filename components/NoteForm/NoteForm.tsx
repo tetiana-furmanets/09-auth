@@ -6,6 +6,9 @@ import { useRouter } from 'next/navigation';
 import { useNoteStore } from '@/lib/store/noteStore';
 import type { NoteTag } from '@/types/note';
 import { createNote } from '@/lib/api/clientApi';
+
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import css from './NoteForm.module.css';
 
 const TAGS: NoteTag[] = [
@@ -20,9 +23,22 @@ type NoteFormProps = {
   onClose: () => void;
 };
 
+export default function NoteForm({ onClose }: NoteFormProps) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
 
-export default function NoteForm({ onClose }: NoteFormProps) {  const router = useRouter();
   const { draft, setDraft, clearDraft } = useNoteStore();
+
+  const mutation = useMutation({
+    mutationFn: createNote,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['notes'] });
+
+      clearDraft();
+      router.push('/notes');
+      onClose();
+    },
+  });
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -36,29 +52,24 @@ export default function NoteForm({ onClose }: NoteFormProps) {  const router = u
     });
   };
 
-  const formAction = async (formData: FormData) => {
-    const newNote = {
-      title: formData.get('title') as string,
-      content: formData.get('content') as string,
-      tag: formData.get('tag') as NoteTag,
-    };
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-    await createNote(newNote);
-
-    clearDraft();
-router.push('/notes');
-onClose();
+    mutation.mutate({
+      title: draft.title,
+      content: draft.content,
+      tag: draft.tag,
+    });
   };
 
   return (
-    <form className={css.form} action={formAction}>
+    <form className={css.form} onSubmit={handleSubmit}>
       <div className={css.field}>
         <input
-          key={draft.title}
           type="text"
           name="title"
           placeholder="Title"
-          defaultValue={draft.title}
+          value={draft.title}
           onChange={handleChange}
           required
           minLength={3}
@@ -68,10 +79,9 @@ onClose();
 
       <div className={css.field}>
         <textarea
-          key={draft.content}
           name="content"
           placeholder="Content"
-          defaultValue={draft.content}
+          value={draft.content}
           onChange={handleChange}
           maxLength={500}
         />
@@ -79,9 +89,8 @@ onClose();
 
       <div className={css.field}>
         <select
-          key={draft.tag}
           name="tag"
-          defaultValue={draft.tag}
+          value={draft.tag}
           onChange={handleChange}
           required
         >
@@ -94,10 +103,13 @@ onClose();
       </div>
 
       <div className={css.actions}>
-      <button type="button" onClick={onClose}>          Cancel
+        <button type="button" onClick={onClose}>
+          Cancel
         </button>
 
-        <button type="submit">Create Note</button>
+        <button type="submit" disabled={mutation.isPending}>
+          {mutation.isPending ? 'Creating...' : 'Create Note'}
+        </button>
       </div>
     </form>
   );

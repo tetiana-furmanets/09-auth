@@ -8,7 +8,7 @@ import { serverCheckSession } from './lib/api/serverApi';
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  const cookieStore = await cookies(); // ✅ await
+  const cookieStore = await cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
   const refreshToken = cookieStore.get('refreshToken')?.value;
 
@@ -30,15 +30,27 @@ export async function proxy(req: NextRequest) {
     return NextResponse.next();
   }
 
- if (refreshToken) {
-  try {
-    await serverCheckSession();
+  if (refreshToken) {
+    try {
+      const response = await serverCheckSession();
 
-    return NextResponse.next();
-  } catch {
-    return NextResponse.redirect(new URL('/sign-in', req.url));
-  }
+      const res = NextResponse.next();
+
+const setCookie = response?.headers?.['set-cookie'];
+
+if (setCookie) {
+  const cookies = Array.isArray(setCookie) ? setCookie : [setCookie];
+
+  cookies.forEach((cookie) => {
+    res.headers.append('set-cookie', cookie);
+  });
 }
+
+      return res;
+    } catch {
+      return NextResponse.redirect(new URL('/sign-in', req.url));
+    }
+  }
 
   return NextResponse.next();
 }
